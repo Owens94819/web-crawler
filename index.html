@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -23,7 +24,7 @@
                 flex-direction: column;
             }
 
-            .FbhRzb{
+            .FbhRzb {
                 border: thin solid #dadce0;
             }
 
@@ -65,24 +66,34 @@
             }
         </style>
     </template>
-<link rel="stylesheet" href="style.css">
-<script>
-            onmessage=function(){
-            switch (arguments[0].data) {
+    <link rel="stylesheet" href="style.css">
+    <script>
+        window.addEventListener('message', function () {
+            var data = arguments[0].data
+            if (!(data instanceof Object)) {
+                return
+            }
+            switch (data.state) {
                 case '--ready--':
                     iframe.contentWindow.postMessage({
-                        src:location.origin+'/injection/script.js',
-                    },'*')
+                        src: location.origin + '/injection/script.js',
+                    }, '*')
                     break;
             }
-        }
-</script>
+        })
+    </script>
 </head>
+
 <body id="body">
-     <div class="nav" xpending>
+    <div class="nav" xpending>
         <div class="bk">
             <button onclick="back()" style="display: none;">
-                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"
+                    class="feather feather-arrow-left">
+                    <line x1="19" y1="12" x2="5" y2="12"></line>
+                    <polyline points="12 19 5 12 12 5"></polyline>
+                </svg>
                 Go back</button>
         </div>
         <div class="sh">
@@ -92,45 +103,10 @@
             <button onclick="search()">search</button>
         </div>
         <div class="progress-wrapper">
-             <div class="progress"></div>
+            <div class="progress"></div>
         </div>
-     </div>
-    <iframe frameborder="0" id="iframe" csp="false" src='http://localhost:12345/http%3A%2F%2Flocalhost%3A1234/test/test.html' xsrc="/test/test.html" xsandbox="allow-top-navigation allow-forms allow-modals allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
-    <script src="index.js"></script>
-    <script>
-    // a='index'
-    // console.log(a);
-    // console.dir(iframe.contentWindow);
-   
-//     onmessage = function(e){
-//     console.log(8);
-// }
-        // console.dir(iframe);
-//         setTimeout(() => {
-    // window.postMessage(a)
-//     console.log(iframe);
-// }, 400);
-// iframe.addEventListener('load', function(e){
-// // e.preventDefault()
-//                         console.log(iframe.src);
-//                     })
-// onmessage = function(e){
-//     console.log(e.data);
-// }
-    </script>
-<script>
-// fetch('http://localhost:12345/post',
-// {method:'post',
-// body:"a=70&g=90",
-// headers:{
-//     "x-Content-Type":"application/x-www-form-urlencoded"
-// }
-// }).then(function(e){
-// e.text().then(function(e){
-// console.log(e);
-// });
-// });
-</script>
+    </div>
+    <iframe id="iframe" src='http://localhost:12345/http%3A%2F%2Flocalhost%3A1234/test/test.html'></iframe>
 </body>
 
 </html>
