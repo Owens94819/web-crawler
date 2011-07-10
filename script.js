@@ -21,7 +21,6 @@ function scraper(url, options) {
         if (obj.disable_cors) {
             url = _fetch.url(url, obj.query);
         }
-        // request.withCredentials=true
         request.open("GET", url, true)
 
 
@@ -40,23 +39,13 @@ function scraper(url, options) {
         }
 
         request.send()
-        // request.addEventListener("load",function(e){
-        //     console.log("loaded");
-        // })
-        // request.addEventListener("progress",function(e){
-        //     console.log("pending",e.total,e.loaded);
-        // })
-        // return
-        request.addEventListener("readystatechange", function (e) {
-            // console.log(request.readyState,request);
-            //4
+        request.addEventListener("readystatechange", function () {
             if (request.readyState === request.HEADERS_RECEIVED) {
                 if (obj.disable_cors) {
                     request.url = request.getResponseHeader("X-Url") || url
                 } else {
                     request.url = request.responseURL
                 }
-                // console.log(request);
             }
         })
 
@@ -82,11 +71,9 @@ function scraper(url, options) {
         url = _fetch.cors_url + encodeURIComponent(btoa(url))
         if (qr instanceof Object) {
             if (qr.regex instanceof Array) {
-                qr.regex[0] = qr.regex[0].toString() //.replace(/\\/img,'\\')
+                qr.regex[0] = qr.regex[0].toString()
             }
             qr = JSON.stringify(qr).toLowerCase()
-            // qr=qr.replace(/[^a-z0-9\{\}\:\,\"\'\[\]\\\/]/img,'')
-            // console.log(qr);
             url += "?s=" + encodeURIComponent(btoa(qr))
         }
         return url
@@ -104,31 +91,10 @@ function scraper(url, options) {
     if (location.hostname.search(/^localhost|^$/) >= 0) {
         _fetch.cors_url = "http://localhost:12345/api/fetch/"
     } else {
-        // _fetch.cors_url = "https://nimo2000.herokuapp.com/api/fetch/"
         _fetch.cors_url = "https://anti-cors.cyclic.app/api/fetch/"
     }
 
-    // _fetch("http://localhost:1234/test.js", {
-    //     _return_request: true,
-    //     disable_cors:true,
-    //     type:'text',
-    //     options:{
-    //         method:'post',
-    //         headers:{
-    //             name:90
-    //         }
-    //     },
-    //     query:{
-    //         top_text:"",
-    //         regex:[/\blocation(\.[^\W]+)?(\s?)+=?/img,'__$&']
-    //     }
-    // }).then(function(e){
-    // console.log(e.getAllResponseHeaders());
-    // console.log(e.getResponseHeader("X-Url"));
-    // console.log(e.response);
-    // });
-    // 
-    // return ;
+
 
     /** @ACTION url location handler */
     function parseURL(url) {
@@ -211,7 +177,6 @@ function scraper(url, options) {
                     globals.callAll(arguments.callee.events, arguments[0])
                 },
                 progress: function () {
-                    // globals.progress.total_percent=globals.toPercentage(globals.progress.loaded,globals.progress.total)
                     globals.callAll(arguments.callee.events, globals.toPercentage(globals.progress.loaded, globals.progress.total), globals.progress.loaded, globals.progress.total)
                 }
         },
@@ -416,9 +381,11 @@ function scraper(url, options) {
                 globals.window.HTMLAnchorElement.prototype.click = function () {
                     if (this.__parsed) {
                         this.dispatchEvent(execScript.event('click'))
-                        // globals.New_Element_Functions.HTMLAnchorElement(this)
                     } else {
-                        globals.New_Element_Functions.HTMLAnchorElement(this)
+                    	if (globals.state === "opened") {
+                    globals.state = "closed"
+                    globals.New_Element_Functions.HTMLAnchorElement(this)
+                }
                     }
                 }
 
@@ -446,7 +413,6 @@ function scraper(url, options) {
                     globals.frame_ready = true
                     load()
                 } else {
-                    // globals.frame.src = globals.frame_default_src
                     globals.frame.contentWindow.location.reload()
                     globals.frame.addEventListener('load', load)
                 }
@@ -607,7 +573,7 @@ function scraper(url, options) {
     execScript.event = function (name) {
         var ev = globals.window.document.createEvent("Event");
         ev.initEvent(name, true, true)
-        // var ev = new Event(name,{bubbles: true,cancelable:true,target:{}})
+        // var ev = new globals.window.Event(name,{bubbles: true,cancelable:true,target:{}})
         return ev
     }
 
@@ -629,7 +595,6 @@ function scraper(url, options) {
                 }).then(function () {
                     if (arguments[0].statusText === 'OK') {
                         r(arguments[0].response)
-                        // console.log(script,arguments[0].response);
                     } else {
                         r()
                     }
@@ -639,7 +604,6 @@ function scraper(url, options) {
                 });
             } else {
                 r(script.innerHTML)
-                // console.log(script);
             }
         });
     }
