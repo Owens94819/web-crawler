@@ -38,9 +38,16 @@ function scraper(url, options) {
         }
 
         request.send()
-
-        // console.log(request);
-        request.onreadystatechange = function () {
+        // request.addEventListener("load",function(e){
+        //     console.log("loaded");
+        // })
+        // request.addEventListener("progress",function(e){
+        //     console.log("pending",e.total,e.loaded);
+        // })
+        // return
+        request.addEventListener("readystatechange",function (e) {
+            console.log(request.readyState,request);
+             //4
             if (request.readyState === request.HEADERS_RECEIVED) {
                 if (obj.disable_cors) {
                     request.url = request.getResponseHeader("X-Url") || url
@@ -49,7 +56,8 @@ function scraper(url, options) {
                 }
                 // console.log(request);
             }
-        }
+        })
+
         var prm = new Promise(function (r) {
             request.onload = function () {
                 r(request)
@@ -118,38 +126,38 @@ function scraper(url, options) {
         var loc = {}
         url = url.trim().replace(/\n/img, '').toLowerCase().replace(/\\/img, '/')
         loc.href = url.trim().replace(/\n/img, '').toLowerCase()
-        loc.origin = [loc.href.match(/^https?\:[\/\\][\/\\]\w[^\/\\#]+\w/)].toString()||"null"
+        loc.origin = [loc.href.match(/^https?\:[\/\\][\/\\]\w[^\/\\#]+\w/)].toString() || "null"
 
 
-       if (loc.origin!=="null") {
-        loc.__path__ = loc.href.replace(loc.origin, '')
-        loc.parentpathname = loc.__path__.replace(/#[^]+/, '').trim() || '/'
-        loc.protocol = [loc.origin.match(/^https?\:/)].toString()
-        loc.host = loc.origin.replace(/^https?\:[\\\/][\\\/]/, '')
-        loc.hostname = loc.host.replace(/\:[^]*/, '')
-        loc.__hash__ = [loc.__path__.match(/#[^?]+/, '')].toString().substring(1)
-        loc.hash = [loc.__path__.match(/#[^]+/, '')].toString()
-        loc.qeury = [loc.hash.match(/\?[^]+/, '')].toString()
-        var pathparse = loc.parentpathname.split('/')
-        loc.parentpathname = []
-        for (var i = 0; i < pathparse.length; i++) {
-            if (pathparse[i] === "..") {
-                loc.parentpathname.pop()
-                continue;
-            } else if (pathparse[i] === "." || pathparse[i] === "") {
-                continue;
+        if (loc.origin !== "null") {
+            loc.__path__ = loc.href.replace(loc.origin, '')
+            loc.parentpathname = loc.__path__.replace(/#[^]+/, '').trim() || '/'
+            loc.protocol = [loc.origin.match(/^https?\:/)].toString()
+            loc.host = loc.origin.replace(/^https?\:[\\\/][\\\/]/, '')
+            loc.hostname = loc.host.replace(/\:[^]*/, '')
+            loc.__hash__ = [loc.__path__.match(/#[^?]+/, '')].toString().substring(1)
+            loc.hash = [loc.__path__.match(/#[^]+/, '')].toString()
+            loc.qeury = [loc.hash.match(/\?[^]+/, '')].toString()
+            var pathparse = loc.parentpathname.split('/')
+            loc.parentpathname = []
+            for (var i = 0; i < pathparse.length; i++) {
+                if (pathparse[i] === "..") {
+                    loc.parentpathname.pop()
+                    continue;
+                } else if (pathparse[i] === "." || pathparse[i] === "") {
+                    continue;
+                }
+                loc.parentpathname.push(pathparse[i])
             }
-            loc.parentpathname.push(pathparse[i])
-        }
 
-        loc.pathname = '/' + loc.parentpathname.join('/')
-        loc.parentpathname.pop()
-        loc.parentpathname = '/' + loc.parentpathname.join('/')
+            loc.pathname = '/' + loc.parentpathname.join('/')
+            loc.parentpathname.pop()
+            loc.parentpathname = '/' + loc.parentpathname.join('/')
             loc.href = loc.origin + loc.pathname + loc.hash;
-       } else {
-        loc.protocol = [loc.href.match(/^[^\\\/\#\?]+\:/)].toString()
-        loc.pathname = loc.href.replace(/^[^\\\/\#\?]+\:/,'')
-       }
+        } else {
+            loc.protocol = [loc.href.match(/^[^\\\/\#\?]+\:/)].toString()
+            loc.pathname = loc.href.replace(/^[^\\\/\#\?]+\:/, '')
+        }
         return loc
     }
     parseURL.join = function (par, chd, loc) {
@@ -186,9 +194,13 @@ function scraper(url, options) {
             reject: new Function(),
                 xresolve: new Function(),
                 resolve: new Function(),
-                progress: new Function()
+                progress: new Function(),
+                _beforethen:[],
+           _then:[],
+           _progress:[],
+           _catch:[]
         },
-        source_elements_queries: ['a','form','img','source','video','link','iframe'],
+        source_elements_queries: ['a', 'form', 'img', 'source', 'video', 'link', 'iframe'],
         source_elements: {
             HTMLAnchorElement: ['href'],
             HTMLFormElement: ['action'],
@@ -198,11 +210,31 @@ function scraper(url, options) {
             HTMLLinkElement: ['href'],
             HTMLIFrameElement: ['src']
         },
+        New_Element_Functions: {
+            HTMLAnchorElement: function (elm) {
+                // globals.class.promiseobj=null
+                console.log(elm);
+            },
+            HTMLFormElement: function (elm) {
+                // globals.class.promiseobj=null
+                console.log(elm);
+            }
+        },
         frame: document.createElement('iframe'),
         pdt: true,
         defaultInjection: ``,
         location: parseURL(url),
-        XMLHttpRequest:window.XMLHttpRequest
+        progress:0,
+        XMLHttpRequest: window.XMLHttpRequest
+    }
+      
+
+    globals.callAll = function(){
+        if (arguments[0] instanceof Array) {
+            for (var i = 0; i < arguments[0].length; i++) {
+                arguments[0][i](arguments[1])
+            }
+        }
     }
 
     globals.request = _fetch(url, {
@@ -210,10 +242,23 @@ function scraper(url, options) {
         disable_cors: globals.pdt
     }).request
 
-    globals.class.promiseobj = new Promise(function () {
-        globals.class.resolve = arguments[0];
-        globals.class.reject = arguments[1];
-    });
+    // globals.class.promiseobj = new Promise(function () {
+    //     globals.class.resolve = arguments[0];
+    //     globals.class.reject = arguments[1];
+    // });
+
+    // new Promise(function () {
+    //         globals.class.resolve = arguments[0];
+    //         globals.class.reject = arguments[1];
+    //     }).then(function(){
+    //     if (globals.class.return.then.foo) {
+    //         globals.callAll(globals.class.return.then.foo,arguments[0])
+    //     }
+    // }).catch(function(){
+    //     if (globals.class.return.catch.foo) {
+    //         globals.callAll(globals.class.return.then.foo,arguments[0])
+    //     }
+    // })
 
     globals.class.return = {}
 
@@ -233,35 +278,67 @@ function scraper(url, options) {
 
     globals.class.return.then = function () {
         if (arguments[0] instanceof Function) {
-            globals.class.promiseobj.then(arguments[0])
+            // globals.class.promiseobj.then(arguments[0])
+            globals.class.return.then.foo?globals.class.return.then.foo.push(arguments[0]):globals.class.return.then.foo =[arguments[0]]
         }
         return globals.class.return
     }
-
+    
     globals.class.return.catch = function () {
         if (arguments[0] instanceof Function) {
-            globals.class.promiseobj.catch(arguments[0])
+            // globals.class.promiseobj.catch(arguments[0])
+            globals.class.return.catch.foo?globals.class.return.catch.foo.push(arguments[0]):globals.class.return.catch.foo =[arguments[0]]
         }
         return globals.class.return
     }
-window.parseURL=parseURL
+    window.parseURL = parseURL
     globals.parse_source_element = function () {
         var url;
-for (var i = 0; i < arguments[1].length; i++) {
-    if (arguments[0].hasAttribute(arguments[1][i])) {
-url=arguments[0].getAttribute(arguments[1][i])||""
-if (url.trim()&&!parseURL.isdomain(url)) {
-    url = parseURL.join(url).href
-    arguments[0].setAttribute(arguments[1][i],url)
-}
-        // arguments[1][i]
-    }
-}
-// console.log(arguments[0],arguments[1]);
+        for (var i = 0; i < arguments[1].length; i++) {
+            if (arguments[0].hasAttribute(arguments[1][i])) {
+                url = arguments[0].getAttribute(arguments[1][i]) || ""
+                if (url.trim() && !parseURL.isdomain(url)) {
+                    url = parseURL.join(url).href
+                    arguments[0].setAttribute(arguments[1][i], url)
+                }
+                // arguments[1][i]
+            }
+        }
+        arguments[0].__parsed = true;
+
+        // console.log(arguments[0],arguments[1]);
+        switch (arguments[0].constructor.name) {
+            case "HTMLAnchorElement":
+                arguments[0].addEventListener('click', function (e) {
+                    e.preventDefault()
+                    globals.New_Element_Functions.HTMLAnchorElement(this)
+                })
+                break;
+            case "HTMLFormElement":
+                arguments[0].addEventListener("submit", function (e) {
+                    e.preventDefault()
+                    globals.New_Element_Functions.HTMLFormElement(this)
+                    return;
+                })
+        }
     }
 
     globals.render_page = function () {
-        globals.progress = 0
+        // if (globals.class.promiseobj) {
+            new Promise(function () {
+                globals.class.resolve = arguments[0];
+                globals.class.reject = arguments[1];
+            }).then(function(){
+            if (globals.class.return.then.foo) {
+                globals.callAll(globals.class.return.then.foo,arguments[0])
+            }
+        }).catch(function(){
+            if (globals.class.return.catch.foo) {
+                globals.callAll(globals.class.return.catch.foo,arguments[0])
+            }
+        })
+        // }
+
         globals.class.progress(globals.progress)
 
         globals.location = parseURL(globals.request.url)
@@ -280,31 +357,64 @@ if (url.trim()&&!parseURL.isdomain(url)) {
         if (!globals.frame._ready) {
             globals.frame._ready = true
             document.body.appendChild(globals.frame);
+        }else{
+            globals.frame.src="about:blank"
         }
+
         globals.window = globals.frame.contentWindow
         globals.XMLHttpRequest = globals.window.XMLHttpRequest;
+        globals.window.document.FRAME_NODE = true
+
+
+        globals.window.HTMLAnchorElement.prototype.click = function () {
+            if (this.__parsed) {
+                this.dispatchEvent(execScript.event('click'))
+            } else {
+                globals.New_Element_Functions.HTMLAnchorElement(this)
+            }
+        }
+
+        globals.window.HTMLFormElement.prototype['--submit_injection--'] = globals.window.HTMLFormElement.prototype.submit
+        HTMLFormElement.prototype['--submit_injection--'] = HTMLFormElement.prototype.submit
+        HTMLFormElement.prototype.submit = globals.window.HTMLFormElement.prototype.submit = function () {
+            if (this.ownerDocument.FRAME_NODE) {
+                globals.New_Element_Functions.HTMLFormElement(this)
+            } else {
+                this['--submit_injection--']()
+            }
+        }
+
+        globals.window.HTMLButtonElement.prototype.click = function () {
+            if (this.form instanceof globals.window.HTMLFormElement && this.type === "submit" && !this.form.__parsed) {
+                globals.New_Element_Functions.HTMLFormElement(this.form)
+            } else {
+                this.dispatchEvent(execScript.event('click'))
+            }
+        }
+
 
         if (!globals.request.response) {
             globals.class.xresolve(globals.window.document)
         }
 
         // console.log(globals.window.location);
-        globals.window.Location = parseURL(url)
+        globals.window.x_location = parseURL(url)
         globals.window.eval(globals.defaultInjection)
+
+
         // globals.request.response.documentElement
-        globals.window.document.addEventListener('DOMNodeInserted',function(e){
-            console.log(90);
+        globals.window.document.addEventListener('DOMNodeInserted', function (e) {
             var att = globals.source_elements[e.target.constructor.name]
             if (att) {
                 globals.parse_source_element(e.target, att)
             }
-              if (e.target instanceof Element) {
-                  e = e.target.querySelectorAll(globals.source_elements_queries.toString());
-                  for (var i = 0; i < e.length; i++) {
-                      att = globals.source_elements[e[i].constructor.name]
-                      globals.parse_source_element(e[i], att)
-                  }
-              }
+            if (e.target instanceof Element || e.target instanceof globals.window.Element) {
+                e = e.target.querySelectorAll(globals.source_elements_queries.toString());
+                for (var i = 0; i < e.length; i++) {
+                    att = globals.source_elements[e[i].constructor.name]
+                    globals.parse_source_element(e[i], att)
+                }
+            }
         })
 
         if (globals.request.response) {
@@ -315,33 +425,27 @@ if (url.trim()&&!parseURL.isdomain(url)) {
 
         var scripts = options.parse_javascript ? globals.window.document.scripts : []
 
-        globals.window.addEventListener("click", function (e) {
-            e.preventDefault()
-            if (e.target instanceof globals.window.HTMLAnchorElement) {
-                var url = e.target.getAttribute('href')
-                // globals.request = _fetch(url, {
-                //     return_request: true,
-                //     disable_cors: globals.pdt
-                // }).request
-
-            }
-            return;
-        }, false)
-
-        globals.window.addEventListener("submit", function (e) {
-            e.preventDefault()
-            return;
-        })
-
-        globals.window.addEventListener("change", function (e) {
-            e.preventDefault()
-            console.log(e);
-            return;
-        })
-
-        // globals.window.document.addEventListener('DOMNodeInserted', function (e) {
-          
+        // globals.window.addEventListener("click", function (e) {
+        //     e.preventDefault()
+        //     if (e.target instanceof globals.window.HTMLAnchorElement) {
+        //         var url = e.target.getAttribute('href')
+        //         console.log(url);
+        //     }
+        //     return;
+        // }, false)
+        // globals.window.addEventListener("submit", function (e) {
+        //     e.preventDefault()
+        //     console.log(e);
+        //     return;
         // })
+        // globals.window.addEventListener("change", function (e) {
+        //     e.preventDefault()
+        //     console.log(e);
+        //     return;
+        // })
+        // globals.window.document.addEventListener('DOMNodeInserted', function (e) {
+        // })
+
         globals.window.global = globals.window
         globals.class.resolve(globals.window)
 
@@ -412,8 +516,13 @@ if (url.trim()&&!parseURL.isdomain(url)) {
             i += 1
         })();
     }
-    globals.request.onload = globals.render_page
 
+    // globals.request.onprogress = function(){
+    //     globals.total=arguments[0].total;
+    //     globals.class.progress()
+    // }
+
+    globals.request.onload = globals.render_page
     function execScript() {
         //danger
         globals.window.eval(arguments[0])
@@ -469,12 +578,12 @@ if (url.trim()&&!parseURL.isdomain(url)) {
 // https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=A&start=0
 // 20+40
 // var src= "https://darknaija.com"
-var src = "http://localhost:12345/"
+var src = "http://localhost:1234/test.html"
 // var src= "https://free.facebook.com"
 // var src= "https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=cutecats&start=0"
 
 scraper(src, {
-    // parse_javascript:false
+    parse_javascript:false
 }).beforethen(function (document) {
     var style = window.document.querySelector('[as="head"]')
     document.head.appendChild(style.content.cloneNode(true))

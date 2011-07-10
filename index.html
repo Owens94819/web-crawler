@@ -139,6 +139,13 @@ Object.defineProperty(this,'locationl',{
 //     }
 //         break;
 // }
+
+// with({a:2,location:90,window:{__proto__:window,location:90}}){
+//     (function(){
+//         console.log(location);
+//         console.log(location,window.location);
+//     })()
+// }
 </script>
 </body>
 </html>
