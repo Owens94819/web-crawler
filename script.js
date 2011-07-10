@@ -1,3 +1,4 @@
+
 function scraper(url, options) {
     if (!(options instanceof Object)) {
         options = {}
@@ -46,7 +47,7 @@ function scraper(url, options) {
         // })
         // return
         request.addEventListener("readystatechange",function (e) {
-            console.log(request.readyState,request);
+            // console.log(request.readyState,request);
              //4
             if (request.readyState === request.HEADERS_RECEIVED) {
                 if (obj.disable_cors) {
@@ -202,7 +203,8 @@ function scraper(url, options) {
                     globals.callAll(globals.class._then,arguments[0])
                 },
                 progress:  function(){
-                    globals.callAll(globals.class._progress,arguments[0])
+                    // globals.progress.total_percent=globals.toPercentage(globals.progress.loaded,globals.progress.total)
+                    globals.callAll(globals.class._progress,globals.toPercentage(globals.progress.loaded,globals.progress.total),globals.progress.loaded,globals.progress.total)
                 },
                 _beforethen:[],
            _then:[],
@@ -233,15 +235,20 @@ function scraper(url, options) {
         pdt: true,
         defaultInjection: ``,
         location: parseURL(url),
-        progress:0,
-        XMLHttpRequest: window.XMLHttpRequest
+        progress:{loaded:0,total:null,total_percent:0},
+        XMLHttpRequest: window.XMLHttpRequest,
+toPercentage:function (number, number_max, percentage) {
+    // percentage = less than percentage (100)    (10,1000,100)
+    percentage = percentage || 100;
+    return Math.min((number*percentage)/number_max,percentage);
+}
     }
       
 
     globals.callAll = function(){
         if (arguments[0] instanceof Array) {
             for (var i = 0; i < arguments[0].length; i++) {
-                arguments[0][i](arguments[1])
+                arguments[0][i](arguments[1],arguments[2],arguments[3])
             }
         }
     }
@@ -336,8 +343,6 @@ function scraper(url, options) {
 
     globals.render_page = function () {
         
-        globals.class.progress(globals.progress)
-
         globals.location = parseURL(globals.request.url)
         url = globals.location.href
 
@@ -422,32 +427,12 @@ function scraper(url, options) {
 
         var scripts = options.parse_javascript ? globals.window.document.scripts : []
 
-        // globals.window.addEventListener("click", function (e) {
-        //     e.preventDefault()
-        //     if (e.target instanceof globals.window.HTMLAnchorElement) {
-        //         var url = e.target.getAttribute('href')
-        //         console.log(url);
-        //     }
-        //     return;
-        // }, false)
-        // globals.window.addEventListener("submit", function (e) {
-        //     e.preventDefault()
-        //     console.log(e);
-        //     return;
-        // })
-        // globals.window.addEventListener("change", function (e) {
-        //     e.preventDefault()
-        //     console.log(e);
-        //     return;
-        // })
-        // globals.window.document.addEventListener('DOMNodeInserted', function (e) {
-        // })
 
         globals.window.global = globals.window
         globals.class.resolve(globals.window)
 
-        globals.progress += 1
-        globals.class.progress(globals.progress)
+        globals.progress.loaded += 0.5
+        globals.class.progress()
 
         /**
          * @ACT makes frame full window (no parent)
@@ -498,8 +483,8 @@ function scraper(url, options) {
                 });
                 scripts = undefined
                 _promisedScripts.resolve()
-                globals.progress += 4
-                globals.class.progress(globals.progress)
+                globals.progress.loaded += 0.5
+                globals.class.progress()
                 return
             }
             execScript.getString(scripts[i]).then(function (__e) {
@@ -514,12 +499,24 @@ function scraper(url, options) {
         })();
     }
 
-    // globals.request.onprogress = function(){
-    //     globals.total=arguments[0].total;
-    //     globals.class.progress()
-    // }
+    globals.request.addEventListener("readystatechange",function(){
+        if (typeof globals.progress.total !== 'number') {
+            globals.progress.total=arguments[0].target.DONE+1
+        }
+        globals.progress.loaded=arguments[0].target.readyState
+        globals.class.progress()
+    })
 
-    globals.request.onload = globals.render_page
+    globals.request.addEventListener("progress",function(e){
+        globals.progress.loaded+=globals.toPercentage(e.loaded,e.total,0.9)
+        globals.class.progress()
+    })
+
+    globals.request.addEventListener('load',globals.render_page)
+    globals.request.addEventListener('error',function(){
+        console.log('rrrr');
+    })
+
     function execScript() {
         //danger
         globals.window.eval(arguments[0])
@@ -575,7 +572,7 @@ function scraper(url, options) {
 // https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=A&start=0
 // 20+40
 // var src= "https://darknaija.com"
-var src = "http://localhost:1234/test.html"
+var src = "http://localhost:12342/test.html"
 // var src= "https://free.facebook.com"
 // var src= "https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=cutecats&start=0"
 
@@ -585,7 +582,7 @@ scraper(src, {
     var style = window.document.querySelector('[as="head"]')
     document.head.appendChild(style.content.cloneNode(true))
 }).progress(function (e) {
-    // console.log(e);
+    console.log(e);
 }).then(function (window, document) {
     document = window.document
     var ctx = document.querySelector("body>div>table") || document.querySelector("body>div.site>div.site-content>section.content-archive")
@@ -595,7 +592,9 @@ scraper(src, {
     }
     // console.log(document);
     console.log("page loaded");
-});;
+}).catch(function(){
+    console.log("page error");
+});
 
 
 // ;
