@@ -3,7 +3,7 @@ function scraper(url,options) {
         options={}
     }
     options.__proto__={
-        load_javascript:true
+        parse_javascript:true
     }
     
     function _fetch(url, obj) {
@@ -222,26 +222,15 @@ function scraper(url,options) {
         if (globals.request.response) {
             globals.class.xresolve(globals.request.response)
         }
-        promisedScripts.then(function () {
-            // console.log("now create frame");
-        });
 
         var frame = document.createElement('iframe')
-        // frame.src = "http://localhost:12345/api/fetch/aHR0cHM6Ly9mcmVlLmZhY2Vib29rLmNvbS8%2FX3JkYz0xJl9yZHI%3D";
-        // frame.src = "test.html";
-        // frame.width = 0;
-        // frame.height = 0;
-        // frame.style.display = 'none';
-        //frame.addEventListener("load", function (e) {
-        // _promisedScripts.resolve()
-        //  })
         document.body.appendChild(frame);
 
         if (!globals.request.response) {
             globals.class.xresolve(frame.contentDocument)
         }
         // console.log(frame.contentWindow.location);
-        frame.contentWindow.__location = parseURL(url)
+        frame.contentWindow.Location = parseURL(url)
         frame.contentWindow.eval(globals.defaultInjection)
         if (globals.request.response) {
             frame.contentDocument.replaceChild(globals.request.response.documentElement, frame.contentDocument.documentElement)
@@ -249,9 +238,21 @@ function scraper(url,options) {
         globals.request.abort();
         delete globals.request;
 
-        var scripts = options.load_javascript?frame.contentDocument.scripts:[]
+        var scripts = options.parse_javascript?frame.contentDocument.scripts:[]
         var window = frame.contentWindow
+        window.addEventListener("click", function (e) {
+            if (e.target instanceof window.HTMLAnchorElement) {
+                e.preventDefault()
+            }
+            return;
+        })
 
+        window.addEventListener("submit", function (e) {
+            console.log(e);
+            // e.preventDefault()
+            return;
+        })
+// frame.remove()
         window.global = window
         execScript.window = window;
         globals.class.resolve(window)
@@ -265,16 +266,7 @@ function scraper(url,options) {
          *  window.parent=window
          *  window.frames=window
          */
-
-
-        // window.self=window
-
-        // window.addEventListener=window.document.addEventListener
-        // window.document;
-        // window.alert = new Function()
-        // window.confirm = new Function()
-        // window.prompt = new Function()
-
+        
         var events = [
             execScript.event("beforeunload"),
             [execScript.event('beforeunload'), ['body']],
@@ -382,11 +374,11 @@ function scraper(url,options) {
 // 20+40
 // var src= "https://darknaija.com"
 var src = "http://localhost:1234/test.html"
-var src= "https://free.facebook.com"
-var src= "https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=A&start=0"
+// var src= "https://free.facebook.com"
+// var src= "https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=cutecats&start=0"
 
 scraper(src,{
-    load_javascript:false
+    // parse_javascript:false
 }).beforethen(function (document) {
     var style = window.document.querySelector('[as="head"]')
     document.head.appendChild(style.content.cloneNode(true))
@@ -399,6 +391,7 @@ scraper(src,{
         document.body.innerHTML=''
         document.body.appendChild(ctx)
     }
+    console.log(document);
 });;
 
 

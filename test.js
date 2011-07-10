@@ -2,4 +2,8 @@
 // addEventListener("load",function(e){
 //     console.log(e.type);
 // })
-console.log(location);
+setTimeout(() => {
+    document.body.innerHTML +=999
+}, 200);
+a=9
+console.log(top.a);
