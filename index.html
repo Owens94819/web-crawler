@@ -78,6 +78,9 @@
                         link: location.origin + '/injection/style.css'
                     }, '*')
                     break;
+                    case '--reload--':
+                    console.log(data);
+                    break;
             }
         })
     </script>
@@ -99,13 +102,14 @@
             <input type="url" placeholder="search..." autocomplete="additional-name">
         </div>
         <div class="sh-btn">
-            <button onclick="search()">search</button>
+            <button onclick="search(body.querySelector('.sh>input').value.trim())">search</button>
         </div>
         <div class="progress-wrapper">
             <div class="progress"></div>
         </div>
     </div>
     <iframe id="iframe" src='http://localhost:12345/http%3A%2F%2Flocalhost%3A1234/test/test.html'></iframe>
+    <script src="index.js"></script>
 </body>
 
 </html>
