@@ -191,10 +191,19 @@ function scraper(url, options) {
 
     var globals = {
         class: {
-            reject: new Function(),
-                xresolve: new Function(),
-                resolve: new Function(),
-                progress: new Function(),
+            reject: function(){
+                globals.callAll(globals.class._catch,arguments[0])
+            },
+                xresolve:  function(){
+                    globals.callAll(globals.class._beforethen,arguments[0])
+                },
+                resolve:  function(){
+                    globals.class.resolve.ready=true;
+                    globals.callAll(globals.class._then,arguments[0])
+                },
+                progress:  function(){
+                    globals.callAll(globals.class._progress,arguments[0])
+                },
                 _beforethen:[],
            _then:[],
            _progress:[],
@@ -264,30 +273,32 @@ function scraper(url, options) {
 
     globals.class.return.beforethen = function () {
         if (arguments[0] instanceof Function) {
-            globals.class.xresolve = arguments[0]
+            globals.class._beforethen.push(arguments[0])
         }
         return globals.class.return
     }
 
     globals.class.return.progress = function () {
         if (arguments[0] instanceof Function) {
-            globals.class.progress = arguments[0]
+            globals.class._progress.push(arguments[0])
         }
         return globals.class.return
     }
 
     globals.class.return.then = function () {
         if (arguments[0] instanceof Function) {
-            // globals.class.promiseobj.then(arguments[0])
-            globals.class.return.then.foo?globals.class.return.then.foo.push(arguments[0]):globals.class.return.then.foo =[arguments[0]]
+            if (globals.class.resolve.ready) {
+                arguments[0](globals.window)
+            }else{
+                globals.class._then.push(arguments[0])
+            }
         }
         return globals.class.return
     }
     
     globals.class.return.catch = function () {
         if (arguments[0] instanceof Function) {
-            // globals.class.promiseobj.catch(arguments[0])
-            globals.class.return.catch.foo?globals.class.return.catch.foo.push(arguments[0]):globals.class.return.catch.foo =[arguments[0]]
+            globals.class._catch.push(arguments[0])
         }
         return globals.class.return
     }
@@ -324,21 +335,7 @@ function scraper(url, options) {
     }
 
     globals.render_page = function () {
-        // if (globals.class.promiseobj) {
-            new Promise(function () {
-                globals.class.resolve = arguments[0];
-                globals.class.reject = arguments[1];
-            }).then(function(){
-            if (globals.class.return.then.foo) {
-                globals.callAll(globals.class.return.then.foo,arguments[0])
-            }
-        }).catch(function(){
-            if (globals.class.return.catch.foo) {
-                globals.callAll(globals.class.return.catch.foo,arguments[0])
-            }
-        })
-        // }
-
+        
         globals.class.progress(globals.progress)
 
         globals.location = parseURL(globals.request.url)
