@@ -89,8 +89,10 @@ function scraper(url,options) {
         ch = ch.trim()
         return pr.replace(/\/$|$/, ch.replace(/^\/|^/, '/'))
     }
-    // _fetch.cors_url = "https://nimo2000.herokuapp.com/api/fetch/"
     _fetch.cors_url = "http://localhost:12345/api/fetch/"
+    // _fetch.cors_url = "https://nimo2000.herokuapp.com/api/fetch/"
+    // _fetch.cors_url = "https://anti-cors.cyclic.app/api/fetch/"
+    
     // _fetch("http://localhost:1234/test.js", {
     //     _return_request: true,
     //     disable_cors:true,
@@ -179,19 +181,23 @@ function scraper(url,options) {
                 resolve: new Function(),
                 progress: new Function()
         },
+        frame:document.createElement('iframe'),
         pdt: true,
         defaultInjection: ``,
         location: parseURL(url)
     }
+
     globals.request = _fetch(url, {
         return_request: true,
         disable_cors: globals.pdt
     }).request
 
-    globals.class.return = new Promise(function () {
+    globals.class.promiseobj=new Promise(function () {
         globals.class.resolve = arguments[0];
         globals.class.reject = arguments[1];
     });
+
+    globals.class.return = {}
 
     globals.class.return.beforethen = function () {
         if (arguments[0] instanceof Function) {
@@ -199,6 +205,7 @@ function scraper(url,options) {
         }
         return globals.class.return
     }
+
     globals.class.return.progress = function () {
         if (arguments[0] instanceof Function) {
             globals.class.progress = arguments[0]
@@ -206,7 +213,21 @@ function scraper(url,options) {
         return globals.class.return
     }
 
-    globals.request.onload = function () {
+    globals.class.return.then = function () {
+        if (arguments[0] instanceof Function) {
+            globals.class.promiseobj.then(arguments[0])
+        }
+        return globals.class.return
+    }
+
+    globals.class.return.catch = function () {
+        if (arguments[0] instanceof Function) {
+            globals.class.promiseobj.catch(arguments[0])
+        }
+        return globals.class.return
+    }
+
+    globals.render_page = function () {
         globals.progress = 0
         globals.class.progress(globals.progress)
 
@@ -223,50 +244,75 @@ function scraper(url,options) {
             globals.class.xresolve(globals.request.response)
         }
 
-        var frame = document.createElement('iframe')
-        document.body.appendChild(frame);
+        if (!globals.frame._ready) {
+            globals.frame._ready=true
+            document.body.appendChild(globals.frame);
+        }
 
         if (!globals.request.response) {
-            globals.class.xresolve(frame.contentDocument)
+            globals.class.xresolve(globals.frame.contentDocument)
         }
-        // console.log(frame.contentWindow.location);
-        frame.contentWindow.Location = parseURL(url)
-        frame.contentWindow.eval(globals.defaultInjection)
+
+        // console.log(globals.frame.contentWindow.location);
+        globals.frame.contentWindow.Location = parseURL(url)
+        globals.frame.contentWindow.eval(globals.defaultInjection)
+
         if (globals.request.response) {
-            frame.contentDocument.replaceChild(globals.request.response.documentElement, frame.contentDocument.documentElement)
+            globals.frame.contentDocument.replaceChild(globals.request.response.documentElement, globals.frame.contentDocument.documentElement)
         }
         globals.request.abort();
         delete globals.request;
 
-        var scripts = options.parse_javascript?frame.contentDocument.scripts:[]
-        var window = frame.contentWindow
-        window.addEventListener("click", function (e) {
-            if (e.target instanceof window.HTMLAnchorElement) {
-                e.preventDefault()
+        var scripts = options.parse_javascript?globals.frame.contentDocument.scripts:[]
+         globals.window=globals.frame.contentWindow
+
+         globals.window.addEventListener("click", function (e) {
+            e.preventDefault()
+            if (e.target instanceof globals.window.HTMLAnchorElement) {
+                var url =e.target.getAttribute('href')
+                // globals.request = _fetch(url, {
+                //     return_request: true,
+                //     disable_cors: globals.pdt
+                // }).request
+
             }
+            return;
+        },false)
+        
+        globals.window.addEventListener("submit", function (e) {
+            e.preventDefault()
             return;
         })
 
-        window.addEventListener("submit", function (e) {
+        globals.window.addEventListener("change", function (e) {
+            e.preventDefault()
             console.log(e);
-            // e.preventDefault()
             return;
         })
-// frame.remove()
-        window.global = window
-        execScript.window = window;
-        globals.class.resolve(window)
+
+        globals.window.document.addEventListener('DOMNodeInserted',function(e){
+            if (e.target instanceof globals.window.Element) {
+                globals.window.document.querySelectorAll('a:nth-child(1)')
+                // console.log(e.nextNode());
+            }
+})
+        globals.window.global = globals.window
+        globals.class.resolve(globals.window)
 
         globals.progress += 1
         globals.class.progress(globals.progress)
 
         /**
-         * @act makes frame full window (no parent)
-         *   window.top=window
-         *  window.parent=window
-         *  window.frames=window
+         * @ACT makes frame full window (no parent)
+         * @NOTE code would'nt run properties are inreplaceable
+         *   globals.window.top=globals.window
+         *  globals.window.parent=globals.window
+         *  globals.window.frames=globals.window
          */
         
+      
+          
+         
         var events = [
             execScript.event("beforeunload"),
             [execScript.event('beforeunload'), ['body']],
@@ -284,22 +330,22 @@ function scraper(url,options) {
                     events.forEach(function () {
                         if (arguments[0] instanceof Array) {
                             var ev = arguments[0][0];
-                            window.dispatchEvent(ev)
+                            globals.window.dispatchEvent(ev)
                             if (arguments[0][1]) {
                                 arguments[0][1].forEach(function () {
-                                    if (typeof window.document[arguments[0]]['on' + ev.type] === "function") {
-                                        // window.document[arguments[0]].addEventListener(ev.type, window.document[arguments[0]]['on' + ev.type])
-                                    } else if (window.document[arguments[0]].getAttribute('on' + ev.type)) {
-                                        window.document[arguments[0]]['on' + ev.type] = new execScript.window.Function('var event=arguments[0];' + window.document[arguments[0]].getAttribute('on' + ev.type))
-                                        window.document[arguments[0]].addEventListener(ev.type, window.document[arguments[0]]['on' + ev.type])
+                                    if (typeof globals.window.document[arguments[0]]['on' + ev.type] === "function") {
+                                        // globals.window.document[arguments[0]].addEventListener(ev.type, globals.window.document[arguments[0]]['on' + ev.type])
+                                    } else if (globals.window.document[arguments[0]].getAttribute('on' + ev.type)) {
+                                        globals.window.document[arguments[0]]['on' + ev.type] = new globals.window.Function('var event=arguments[0];' + globals.window.document[arguments[0]].getAttribute('on' + ev.type))
+                                        globals.window.document[arguments[0]].addEventListener(ev.type, globals.window.document[arguments[0]]['on' + ev.type])
                                     }
-                                    window.document[arguments[0]].dispatchEvent(ev)
+                                    globals.window.document[arguments[0]].dispatchEvent(ev)
                                 })
                             } else {
-                                window.document.dispatchEvent(ev)
+                                globals.window.document.dispatchEvent(ev)
                             }
                         } else {
-                            window.dispatchEvent(arguments[0])
+                            globals.window.dispatchEvent(arguments[0])
                         }
                     });
                 });
@@ -320,24 +366,26 @@ function scraper(url,options) {
             i += 1
         })();
     }
-
+    globals.request.onload=globals.render_page
+    
     function execScript() {
         //danger
-        execScript.window.eval(arguments[0])
+        globals.window.eval(arguments[0])
     }
+
     execScript.event = function (name) {
-        var ev = execScript.window.document.createEvent("Event");
+        var ev = globals.window.document.createEvent("Event");
         ev.initEvent(name, true, true)
         // var ev = new Event(name,{bubbles: true,cancelable:true,target:{}})
         return ev
     }
+
     execScript.getString = function (script) {
         return new Promise(function (r) {
             if (script.src) {
                 /**
                  * @todo disable-cors
                  */
-                // console.log(globals.location,url);
                 _fetch(parseURL.join(script.getAttribute('src')).href, {
                     type: "text",
                     disable_cors: globals.pdt,
@@ -361,6 +409,8 @@ function scraper(url,options) {
     }
     return globals.class.return
 }
+
+
 /**
  * https://free.facebook.com
  * https://google.com
