@@ -736,12 +736,22 @@ function scraper(url, options) {
         url=_fetch.url(url)
         // console.log(url);
         // iframe.src="http://localhost:12345/http%3A%2F%2Flocalhost%3A1234/test/test.html"
-        iframe.addEventListener('load',function(){
-            iframe.contentWindow.postMessage({
-                src:location.origin+'/injection/script.js',
-            },'*')
-        })
-        
+//         iframe.addEventListener('load',function(){
+// console.log(90);
+//             iframe.contentWindow.postMessage({
+//                 src:location.origin+'/injection/script.js',
+//             },'*')
+//         })
+        onmessage=function(){
+            switch (arguments[0].data) {
+                case '--ready--':
+                    iframe.contentWindow.postMessage({
+                        src:location.origin+'/injection/script.js',
+                    },'*')
+                    break;
+            }
+        }
+        // window.addEventListener('message',)
         // globals.replace_window(_fetch(url, {
         //     return_request: true,
         //     disable_cors: globals.pdt
