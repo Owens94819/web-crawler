@@ -6,6 +6,8 @@ function scraper(url, options) {
         parse_javascript: true
     }
 
+
+    /** @ACTION request handler with anti-cors*/
     function _fetch(url, obj) {
         if (obj instanceof Object) {
             obj.__proto__ = _fetch.obj
@@ -97,9 +99,14 @@ function scraper(url, options) {
         ch = ch.trim()
         return pr.replace(/\/$|$/, ch.replace(/^\/|^/, '/'))
     }
-    _fetch.cors_url = "http://localhost:12345/api/fetch/"
-    // _fetch.cors_url = "https://nimo2000.herokuapp.com/api/fetch/"
-    // _fetch.cors_url = "https://anti-cors.cyclic.app/api/fetch/"
+
+    /** @ACTION api enveroment*/
+    if (location.hostname.search(/^localhost|^$/) >= 0) {
+        _fetch.cors_url = "http://localhost:12345/api/fetch/"
+    } else {
+        // _fetch.cors_url = "https://nimo2000.herokuapp.com/api/fetch/"
+        _fetch.cors_url = "https://anti-cors.cyclic.app/api/fetch/"
+    }
 
     // _fetch("http://localhost:1234/test.js", {
     //     _return_request: true,
@@ -122,12 +129,13 @@ function scraper(url, options) {
     // });
     // 
     // return ;
+
+    /** @ACTION url location handler */
     function parseURL(url) {
         var loc = {}
         url = url.trim().replace(/\n/img, '').toLowerCase().replace(/\\/img, '/')
         loc.href = url.trim().replace(/\n/img, '').toLowerCase()
         loc.origin = [loc.href.match(/^https?\:[\/\\][\/\\]\w[^\/\\#]+\w/)].toString() || "null"
-
 
         if (loc.origin !== "null") {
             loc.__path__ = loc.href.replace(loc.origin, '')
@@ -189,26 +197,23 @@ function scraper(url, options) {
         return url.search(/^https?:\/\/+[^]*[:.]+\w|^[^\\\/\#\?]+\:/) >= 0
     }
 
+
     var globals = {
         class: {
             reject: function () {
-                    globals.callAll(globals.class._catch, arguments[0], arguments[1])
+                    globals.callAll(arguments.callee.events, arguments[0], arguments[1])
                 },
                 xresolve: function () {
-                    globals.callAll(globals.class._beforethen, arguments[0])
+                    globals.callAll(arguments.callee.events, arguments[0])
                 },
                 resolve: function () {
                     globals.class.resolve.ready = true;
-                    globals.callAll(globals.class._then, arguments[0])
+                    globals.callAll(arguments.callee.events, arguments[0])
                 },
                 progress: function () {
                     // globals.progress.total_percent=globals.toPercentage(globals.progress.loaded,globals.progress.total)
-                    globals.callAll(globals.class._progress, globals.toPercentage(globals.progress.loaded, globals.progress.total), globals.progress.loaded, globals.progress.total)
-                },
-                _beforethen: [],
-                _then: [],
-                _progress: [],
-                _catch: []
+                    globals.callAll(arguments.callee.events, globals.toPercentage(globals.progress.loaded, globals.progress.total), globals.progress.loaded, globals.progress.total)
+                }
         },
         source_elements_queries: ['a', 'form', 'img', 'source', 'video', 'link', 'iframe'],
         source_elements: {
@@ -222,9 +227,7 @@ function scraper(url, options) {
         },
         New_Element_Functions: {
             HTMLAnchorElement: function (elm) {
-                // globals.class.promiseobj=null
-                elm = parseURL(elm.href) //.protocol.search(/^https?\:/)
-
+                elm = parseURL(elm.href)
                 if (elm.protocol.search(/^https?\:/) >= 0) {
                     globals.request = _fetch(elm.href, {
                         return_request: true,
@@ -234,7 +237,7 @@ function scraper(url, options) {
                 }
             },
             HTMLFormElement: function (elm) {
-                // globals.class.promiseobj=null
+                globals.state = "opened"
                 console.log(elm);
             }
         },
@@ -255,6 +258,7 @@ function scraper(url, options) {
         frame_default_src: "about:blank", //'about:blank',
         pdt: true,
         defaultInjection: ``,
+        state: "closed",
         location: parseURL(url),
         progress: {
             loaded: 0,
@@ -273,6 +277,7 @@ function scraper(url, options) {
     if (globals.frame && globals.frame.src) {
         globals.frame.src = globals.frame_default_src
     }
+
     globals.callAll = function () {
         if (arguments[0] instanceof Array) {
             for (var i = 0; i < arguments[0].length; i++) {
@@ -287,36 +292,28 @@ function scraper(url, options) {
         disable_cors: globals.pdt
     }).request
 
-    // globals.class.promiseobj = new Promise(function () {
-    //     globals.class.resolve = arguments[0];
-    //     globals.class.reject = arguments[1];
-    // });
 
-    // new Promise(function () {
-    //         globals.class.resolve = arguments[0];
-    //         globals.class.reject = arguments[1];
-    //     }).then(function(){
-    //     if (globals.class.return.then.foo) {
-    //         globals.callAll(globals.class.return.then.foo,arguments[0])
-    //     }
-    // }).catch(function(){
-    //     if (globals.class.return.catch.foo) {
-    //         globals.callAll(globals.class.return.then.foo,arguments[0])
-    //     }
-    // })
 
     globals.class.return = {}
 
     globals.class.return.beforethen = function () {
         if (arguments[0] instanceof Function) {
-            globals.class._beforethen.push(arguments[0])
+            if (globals.class.xresolve.events) {
+                globals.class.xresolve.events.push(arguments[0])
+            } else {
+                globals.class.xresolve.events = [arguments[0]]
+            }
         }
         return globals.class.return
     }
 
     globals.class.return.progress = function () {
         if (arguments[0] instanceof Function) {
-            globals.class._progress.push(arguments[0])
+            if (globals.class.progress.events) {
+                globals.class.progress.events.push(arguments[0])
+            } else {
+                globals.class.progress.events = [arguments[0]]
+            }
         }
         return globals.class.return
     }
@@ -326,7 +323,11 @@ function scraper(url, options) {
             if (globals.class.resolve.ready) {
                 arguments[0](globals.window)
             } else {
-                globals.class._then.push(arguments[0])
+                if (globals.class.resolve.events) {
+                    globals.class.resolve.events.push(arguments[0])
+                } else {
+                    globals.class.resolve.events = [arguments[0]]
+                }
             }
         }
         return globals.class.return
@@ -334,11 +335,15 @@ function scraper(url, options) {
 
     globals.class.return.catch = function () {
         if (arguments[0] instanceof Function) {
-            globals.class._catch.push(arguments[0])
+            if (globals.class.reject.events) {
+                globals.class.reject.events.push(arguments[0])
+            } else {
+                globals.class.reject.events = [arguments[0]]
+            }
         }
         return globals.class.return
     }
-    window.parseURL = parseURL
+
     globals.parse_source_element = function () {
         if (arguments[0].__parsed) {
             return
@@ -351,28 +356,31 @@ function scraper(url, options) {
                     url = parseURL.join(url).href
                     arguments[0].setAttribute(arguments[1][i], url)
                 }
-                // arguments[1][i]
             }
         }
 
         arguments[0].__parsed = true;
-        // console.log(arguments[0],arguments[1]);
+
         switch (arguments[0].constructor.name) {
             case "HTMLAnchorElement":
-                arguments[0].addEventListener('click', function (e) {
-                    e.preventDefault()
-                    // e.stopImmediatePropagation()
-                    globals.New_Element_Functions.HTMLAnchorElement(this)
-                })
+                arguments[0].addEventListener('click', globals.parse_source_element.event(arguments[0].constructor.name))
                 break;
             case "HTMLFormElement":
-                arguments[0].addEventListener("submit", function (e) {
-                    e.preventDefault()
-                    globals.New_Element_Functions.HTMLFormElement(this)
-                    return;
-                })
+                arguments[0].addEventListener("submit", globals.parse_source_element.event(arguments[0].constructor.name))
         }
     }
+    globals.parse_source_element.event = function (name) {
+        return function (e) {
+            if (!e.defaultPrevented) {
+                e.preventDefault()
+                if (globals.state === "opened") {
+                    globals.state = "closed"
+                    globals.New_Element_Functions[name](this)
+                }
+            }
+        }
+    }
+
 
     HTMLFormElement.prototype['--submit_injection--'] = HTMLFormElement.prototype.submit
 
@@ -385,7 +393,7 @@ function scraper(url, options) {
 
         globals.request.abort();
         delete globals.request;
-        // return
+
         var _promisedScripts = {}
         var promisedScripts = new Promise(function () {
             _promisedScripts.resolve = arguments[0]
@@ -430,45 +438,17 @@ function scraper(url, options) {
                         this.dispatchEvent(execScript.event('click'))
                     }
                 }
-
-                // response.documentElement
-                // globals.window.document.addEventListener('DOMNodeInserted', function (e) {
-                //     var att = globals.source_elements[e.target.constructor.name]
-                //     if (att) {
-                //         globals.parse_source_element(e.target, att)
-                //     }
-                //     if (e.target instanceof Element || e.target instanceof globals.window.Element) {
-                //         e = e.target.querySelectorAll(globals.source_elements_queries.toString());
-                //         for (var i = 0; i < e.length; i++) {
-                //             att = globals.source_elements[e[i].constructor.name]
-                //             globals.parse_source_element(e[i], att)
-                //         }
-                //     }
-                // })
                 r()
             }
 
             if (globals.frame) {
                 if (!globals.frame_ready) {
                     globals.frame_ready = true
-                    // document.body.appendChild(globals.frame);
                     load()
                 } else {
-                    globals.frame.src = globals.frame_default_src
-                    // globals.frame.contentWindow.location.reload()
-                    // var d=Date.now()
-                    // requestAnimationFrame
-                    // setTimeout
-                    // (function(){
-                    //     console.log(globals.frame.contentDocument,Date.now()-d);
-                    // },33)
-                    // globals.frame.onload=load
-                    // var d =
+                    // globals.frame.src = globals.frame_default_src
+                    globals.frame.contentWindow.location.reload()
                     globals.frame.addEventListener('load', load)
-                    globals.frame.addEventListener('beforeunload', function () {
-                        console.log(9);
-                    })
-                    // console.log(d);
                 }
             } else {
                 globals.window = {
@@ -481,12 +461,11 @@ function scraper(url, options) {
             }
 
         })(function () {
-
+            globals.state = "opened"
             if (!response) {
                 globals.class.xresolve(globals.window.document)
             }
 
-            // console.log(globals.window.location);
             globals.window.x_location = parseURL(url)
             globals.window.eval(globals.defaultInjection)
 
@@ -496,9 +475,7 @@ function scraper(url, options) {
             } else {
                 globals.class.reject(parseURL(url), globals.window)
             }
-            // globals.DOM(globals.window.document)
 
-            ;
             (globals.window.MutationObserver ? function (foo, elm) {
                 new globals.window.MutationObserver(function (e) {
                     for (var i = 0; i < e.length; i++) {
@@ -531,12 +508,6 @@ function scraper(url, options) {
              * 
              */
 
-            // if (response) {
-            //     globals.class.resolve(globals.window)
-            // }else{
-            //     globals.class.reject(globals.window)
-            // }
-
             globals.progress.loaded += 0.5
             globals.class.progress()
 
@@ -559,7 +530,7 @@ function scraper(url, options) {
                 execScript.event('load'),
                 [execScript.event('load'), ['body']]
             ] : [];
-// events=[]
+
             var i = 0;
             var call;
             (call = function () {
@@ -624,8 +595,6 @@ function scraper(url, options) {
         globals.request.addEventListener('error', globals.render_page)
     }
 
-    globals.replace_window();
-
     function execScript(a) {
         //danger
         try {
@@ -674,61 +643,9 @@ function scraper(url, options) {
             }
         });
     }
+
+    /** load page */
+    globals.replace_window();
+
     return globals.class.return
 }
-
-
-/**
- * https://free.facebook.com
- * https://google.com
- * p**n api https://cdn-darknaija.com/wp-content/uploads/
- * http://localhost:1234/test.html
- * https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=dogs
- *                      /search?q=logos&hl=en-NG&gbv=2&biw=1350&bih=663&ie=UTF-8&tbm=isch&ei=n8Q3Y-fBDaWAxc8PwMOMgAs&start=20&sa=N
- *                     /search?q=logos&hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&ei=GcU3Y5ylDPCBxc8P7buLiAo&start=40&sa=N
- */
-// https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=A&start=0
-// 20+40
-// var src= "https://darknaija.com"
-var src = "http://localhost:1234/test.html"
-// var src= "https://free.facebook.com"
-// var src= "https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=cutecats&start=0"
-var d = document;
-scraper(src, {
-    // parse_javascript: false,
-    iframe: iframe,
-}).beforethen(function (document) {
-    try {
-        document.querySelector('body>div').remove()
-    document.querySelector('body>div:last-child').remove()
-    document.querySelector('body>div:last-child').remove()
-    } catch (error) {
-        
-    }
-    var style = window.document.querySelector('[as="head"]')
-    document.head.appendChild(style.content.cloneNode(true))
-}).progress(function (e) {
-    // console.log(e);
-}).then(function (window, document) {
-    document = window.document
-    var ctx = document.querySelector("body>div>table") || document.querySelector("body>div.site>div.site-content>section.content-archive")
-    if (ctx) {
-        // document.body.innerHTML = ''
-        // document.body.appendChild(ctx)
-    }
-    // console.log(document);
-    console.log("page loaded");
-}).catch(function (msg, window) {
-    console.log("page error", msg);
-});
-
-
-// ;
-// (function (e) {
-//     var window = {
-//         __proto__: global
-//     }
-
-
-
-// })();

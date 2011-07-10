@@ -1,9 +1,8 @@
 // location=9
-addEventListener("load",function(e){
-    console.log(e.type);
-})
-
-console.log(88);
+// addEventListener("load",function(e){
+//     console.log(e.type);
+// })
+// console.log(88);
 // observe(function(e){
 //     console.log(e);
 // })

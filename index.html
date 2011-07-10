@@ -1,34 +1,5 @@
 <!DOCTYPE html>
-<script>
-    if (window.MutationObserver) {
-    observe = function (foo, elm) {
-        new MutationObserver(function (e) {
-            for (var i = 0; i < e.length; i++) {
-                for (var _i = 0; _i < e[i].addedNodes.length; _i++) {
-                    foo(e[i].addedNodes[_i]);
-                }
-            }
-        }).observe(elm || document, {
-            childList: true,
-            characterData: true,
-            subtree: true,
-        })
-    }
-} else {
-    observe = function (foo,elm) {
-        console.error('browser not support')
-        (elm || document).addEventListener('DOMSubtreeModified' || 'DOMNodeInsertedIntoDocument' || 'DOMNodeInserted' || 'DOMContentLoaded' || 'DOMCharacterDataModified' || 'DOMNodeInsertedIntoDocument', function (e) {
-            e = e.target
-            console.log(e);
-            foo(e);
-        })
-    }
-}
-observe(function(e){
-    // console.log(e);
-})
-</script>
-<html lang="en" >
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -36,114 +7,123 @@ observe(function(e){
     <title>Document</title>
     <template as="head">
         <style>
-            body{
-               background-color: red;
-color: #333333;
-font-family: arial,sans-serif;
-  padding: 0;
-  margin: 0;
-  max-width: none;
-  min-width: 0;
-  overflow: auto;
-  display: flex;
-  width: 100%;
-  flex-wrap: wrap;
-  flex-direction: column;
+            body {
+                background-color: red;
+                color: #333333;
+                font-family: arial, sans-serif;
+                padding: 0;
+                margin: 0;
+                max-width: none;
+                min-width: 0;
+                overflow: auto;
+                display: flex;
+                width: 100%;
+                flex-wrap: wrap;
+                flex-direction: column;
             }
+
             body>table.GpQGbf {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: wrap;
-  width: 100%;
-  overflow: auto;
-}
-body>table.GpQGbf>tbody {
-  display: flex;
-  max-width: none;
-  width: auto;
-  overflow: auto;
-  flex-direction: column;
-  flex-wrap: wrap;
-}
-body>table.GpQGbf>tbody>tr {
-  width: 100%;
-  /* height: 77%; */
-  display: flex;
-  overflow: auto;
-  flex-wrap: wrap;
-  flex-direction: row;
-}
-body>table.GpQGbf>tbody>tr>td.e3goi {
-  display: flex;
-  flex-direction: row;
-  width: 25%;
-  overflow: hidden;
-}
-.meta-category{
-    display: none;
-}
+                display: flex;
+                flex-direction: row;
+                flex-wrap: wrap;
+                width: 100%;
+                overflow: auto;
+            }
+
+            body>table.GpQGbf>tbody {
+                display: flex;
+                max-width: none;
+                width: auto;
+                overflow: auto;
+                flex-direction: column;
+                flex-wrap: wrap;
+            }
+
+            body>table.GpQGbf>tbody>tr {
+                width: 100%;
+                /* height: 77%; */
+                display: flex;
+                overflow: auto;
+                flex-wrap: wrap;
+                flex-direction: row;
+            }
+
+            body>table.GpQGbf>tbody>tr>td.e3goi {
+                display: flex;
+                flex-direction: row;
+                width: 25%;
+                overflow: hidden;
+            }
+
+            .meta-category {
+                display: none;
+            }
         </style>
     </template>
-<style>
-    /* h:last-child */
-    body{
-        margin: 0;
-        padding: 0;
-        overflow: hidden;
-    }
-    iframe{
-        width: 100vw;
-        height: 100vh;
-        background-color: #333333;
-        border: none;
-    }
-</style>
-<script>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            overflow: hidden;
+        }
 
-</script>
+        iframe {
+            width: 100vw;
+            height: 100vh;
+            background-color: #333333;
+            border: none;
+        }
+    </style>
+<script src="script.js"></script>
 </head>
 <body>
-   <iframe frameborder="0" id="iframe"></iframe>
-<script>
- o={
-         get e() {
-        return 2
+    <iframe frameborder="0" id="iframe"></iframe>
+    <script>
+/**
+ * https://free.facebook.com
+ * https://google.com
+ * p**n api https://cdn-darknaija.com/wp-content/uploads/
+ * http://localhost:1234/test.html
+ * https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=dogs
+ *                      /search?q=logos&hl=en-NG&gbv=2&biw=1350&bih=663&ie=UTF-8&tbm=isch&ei=n8Q3Y-fBDaWAxc8PwMOMgAs&start=20&sa=N
+ *                     /search?q=logos&hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&ei=GcU3Y5ylDPCBxc8P7buLiAo&start=40&sa=N
+ */
+// https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=A&start=0
+// 20+40
+// var src= "https://darknaija.com"
+var src = "http://localhost:1234/test.html"
+// var src= "https://free.facebook.com"
+// var src= "https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=cutecats&start=0"
+
+scraper(src, {
+    // parse_javascript: false,
+    iframe: iframe,
+}).beforethen(function (document) {
+    // try {
+    //     document.querySelector('body>div').remove()
+    // document.querySelector('body>div:last-child').remove()
+    // document.querySelector('body>div:last-child').remove()
+    // } catch (error) {
+        
+    // }
+    var style = window.document.querySelector('[as="head"]')
+    document.head.appendChild(style.content.cloneNode(true))
+}).progress(function (e) {
+    // console.log(e);
+}).then(function (window, document) {
+    document = window.document
+    var ctx = document.querySelector("body>div>table") || document.querySelector("body>div.site>div.site-content>section.content-archive")
+    if (ctx) {
+        // document.body.innerHTML = ''
+        // document.body.appendChild(ctx)
     }
- };
-Object.defineProperty(this,'locationl',{
-    get:function() {
-        return 2
-    }
-})
+    console.log("page loaded");
+}).catch(function (msg, window) {
+    console.log("page error", msg);
+});
 
-var {location}={location:6}
-console.log(location);
-// JSON.stringify(location,function(){
-//     console.log(arguments);
-// })
-// location.href=9
-// addEventListener("beforeunload",function(e){
-//     e.preventDefault()
-// return e.returnValue ="leavin?"
-// },{capture:false})
 
-// switch (1) {
-//     case 1:{
-//         console.log(2);
-//     }
-//     case 2:{
-//         console.log(211);
-//     }
-//         break;
-// }
-
-// with({a:2,location:90,window:{__proto__:window,location:90}}){
-//     (function(){
-//         console.log(location);
-//         console.log(location,window.location);
-//     })()
-// }
-</script>
-<script src="script.js"></script>
+    </script>
 </body>
+
 </html>
