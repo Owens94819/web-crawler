@@ -6,10 +6,9 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <template as="head">
-        <style>
+    <template id="style">
             body {
-                /* background-color: red; */
+                 background-color: #e2e4e9; 
                 color: #333333;
                 font-family: arial, sans-serif;
                 /* padding: 0;
@@ -64,7 +63,6 @@
             .meta-category {
                 display: none;
             }
-        </style>
     </template>
     <link rel="stylesheet" href="style.css">
     <script>
@@ -77,6 +75,7 @@
                 case '--ready--':
                     iframe.contentWindow.postMessage({
                         src: location.origin + '/injection/script.js',
+                        link: location.origin + '/injection/style.css'
                     }, '*')
                     break;
             }
