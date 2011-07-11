@@ -741,6 +741,7 @@ function scraper(url, options) {
                 src:location.origin+'/injection/script.js',
             },'*')
         })
+        
         // globals.replace_window(_fetch(url, {
         //     return_request: true,
         //     disable_cors: globals.pdt
