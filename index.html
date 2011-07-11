@@ -1,6 +1,36 @@
 <!DOCTYPE html>
+<script>
+    if (window.MutationObserver) {
+    observe = function (foo, elm) {
+        new MutationObserver(function (e) {
+            for (var i = 0; i < e.length; i++) {
+                for (var _i = 0; _i < e[i].addedNodes.length; _i++) {
+                    foo(e[i].addedNodes[_i]);
+                }
+            }
+        }).observe(elm || document, {
+            childList: true,
+            characterData: true,
+            subtree: true,
+        })
+    }
+} else {
+    observe = function (foo,elm) {
+        console.error('browser not support')
+        (elm || document).addEventListener('DOMSubtreeModified' || 'DOMNodeInsertedIntoDocument' || 'DOMNodeInserted' || 'DOMContentLoaded' || 'DOMCharacterDataModified' || 'DOMNodeInsertedIntoDocument', function (e) {
+            e = e.target
+            console.log(e);
+            foo(e);
+        })
+    }
+}
+observe(function(e){
+    // console.log(e);
+})
+</script>
 <html lang="en" >
 <head>
+    <a href="ma:g">j</a>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -61,16 +91,6 @@ body>table.GpQGbf>tbody>tr>td.e3goi {
         width: 90vw;
         height: 400px;
     }
-    *>a:nth-child(1){
-        background-color: red;
-    }
-    *>a:nth-child(2){
-        background-color: green;
-    }
-    *>a:nth-child(3){
-        background-color: blue;
-    }
-    a:n
 </style>
 <script>
 
@@ -84,7 +104,8 @@ body>table.GpQGbf>tbody>tr>td.e3goi {
         <a href="">2</a>
     </div>
     <a href="">3</a>
-
+    
+<video src=""></video>
     <!-- <iframe src="/kk kk" frameborder="0"></iframe> -->
     <h1>88</h1>
     <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Soluta similique nesciunt, magni corrupti dolores repudiandae dicta quisquam accusantium recusandae est asperiores unde rerum esse sunt adipisci explicabo? Unde, porro eligendi.</p>
@@ -108,6 +129,16 @@ Object.defineProperty(this,'locationl',{
 //     e.preventDefault()
 // return e.returnValue ="leavin?"
 // },{capture:false})
+
+// switch (1) {
+//     case 1:{
+//         console.log(2);
+//     }
+//     case 2:{
+//         console.log(211);
+//     }
+//         break;
+// }
 </script>
 </body>
 </html>

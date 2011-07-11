@@ -1,11 +1,11 @@
-function scraper(url,options) {
+function scraper(url, options) {
     if (!(options instanceof Object)) {
-        options={}
+        options = {}
     }
-    options.__proto__={
-        parse_javascript:true
+    options.__proto__ = {
+        parse_javascript: true
     }
-    
+
     function _fetch(url, obj) {
         if (obj instanceof Object) {
             obj.__proto__ = _fetch.obj
@@ -13,7 +13,7 @@ function scraper(url,options) {
             obj = _fetch.obj
         }
 
-        var request = new XMLHttpRequest();
+        var request = new globals.XMLHttpRequest();
         request.responseType = obj.type
         request.url = url
         if (obj.disable_cors) {
@@ -82,7 +82,7 @@ function scraper(url,options) {
         return url
     }
     _fetch.isdomain = function (url) {
-        return url.search(/^https?:\/\/+[^]*[:.]+\w/) >= 0
+        return url.search(/^https?:\/\/+[^]*[:.]+\w|^[^\\\/\#\?]+\:/) >= 0
     }
     _fetch.joinUrl = function (pr, ch) {
         pr = pr.trim()
@@ -92,7 +92,7 @@ function scraper(url,options) {
     _fetch.cors_url = "http://localhost:12345/api/fetch/"
     // _fetch.cors_url = "https://nimo2000.herokuapp.com/api/fetch/"
     // _fetch.cors_url = "https://anti-cors.cyclic.app/api/fetch/"
-    
+
     // _fetch("http://localhost:1234/test.js", {
     //     _return_request: true,
     //     disable_cors:true,
@@ -118,7 +118,10 @@ function scraper(url,options) {
         var loc = {}
         url = url.trim().replace(/\n/img, '').toLowerCase().replace(/\\/img, '/')
         loc.href = url.trim().replace(/\n/img, '').toLowerCase()
-        loc.origin = [loc.href.match(/^https?\:[\/\\][\/\\]\w[^\/\\#]+\w/)].toString()
+        loc.origin = [loc.href.match(/^https?\:[\/\\][\/\\]\w[^\/\\#]+\w/)].toString()||"null"
+
+
+       if (loc.origin!=="null") {
         loc.__path__ = loc.href.replace(loc.origin, '')
         loc.parentpathname = loc.__path__.replace(/#[^]+/, '').trim() || '/'
         loc.protocol = [loc.origin.match(/^https?\:/)].toString()
@@ -142,7 +145,11 @@ function scraper(url,options) {
         loc.pathname = '/' + loc.parentpathname.join('/')
         loc.parentpathname.pop()
         loc.parentpathname = '/' + loc.parentpathname.join('/')
-        loc.href = loc.origin + loc.pathname + loc.hash;
+            loc.href = loc.origin + loc.pathname + loc.hash;
+       } else {
+        loc.protocol = [loc.href.match(/^[^\\\/\#\?]+\:/)].toString()
+        loc.pathname = loc.href.replace(/^[^\\\/\#\?]+\:/,'')
+       }
         return loc
     }
     parseURL.join = function (par, chd, loc) {
@@ -171,7 +178,7 @@ function scraper(url,options) {
         return loc
     }
     parseURL.isdomain = function (url) {
-        return url.search(/^https?:\/\/+[^]*[:.]+\w/) >= 0
+        return url.search(/^https?:\/\/+[^]*[:.]+\w|^[^\\\/\#\?]+\:/) >= 0
     }
 
     var globals = {
@@ -181,10 +188,21 @@ function scraper(url,options) {
                 resolve: new Function(),
                 progress: new Function()
         },
-        frame:document.createElement('iframe'),
+        source_elements_queries: ['a','form','img','source','video','link','iframe'],
+        source_elements: {
+            HTMLAnchorElement: ['href'],
+            HTMLFormElement: ['action'],
+            HTMLImageElement: ['src', 'srcset'],
+            HTMLSourceElement: ['src', 'srcset'],
+            HTMLVideoElement: ['src', 'placeholder'],
+            HTMLLinkElement: ['href'],
+            HTMLIFrameElement: ['src']
+        },
+        frame: document.createElement('iframe'),
         pdt: true,
         defaultInjection: ``,
-        location: parseURL(url)
+        location: parseURL(url),
+        XMLHttpRequest:window.XMLHttpRequest
     }
 
     globals.request = _fetch(url, {
@@ -192,7 +210,7 @@ function scraper(url,options) {
         disable_cors: globals.pdt
     }).request
 
-    globals.class.promiseobj=new Promise(function () {
+    globals.class.promiseobj = new Promise(function () {
         globals.class.resolve = arguments[0];
         globals.class.reject = arguments[1];
     });
@@ -226,6 +244,21 @@ function scraper(url,options) {
         }
         return globals.class.return
     }
+window.parseURL=parseURL
+    globals.parse_source_element = function () {
+        var url;
+for (var i = 0; i < arguments[1].length; i++) {
+    if (arguments[0].hasAttribute(arguments[1][i])) {
+url=arguments[0].getAttribute(arguments[1][i])||""
+if (url.trim()&&!parseURL.isdomain(url)) {
+    url = parseURL.join(url).href
+    arguments[0].setAttribute(arguments[1][i],url)
+}
+        // arguments[1][i]
+    }
+}
+// console.log(arguments[0],arguments[1]);
+    }
 
     globals.render_page = function () {
         globals.progress = 0
@@ -245,31 +278,47 @@ function scraper(url,options) {
         }
 
         if (!globals.frame._ready) {
-            globals.frame._ready=true
+            globals.frame._ready = true
             document.body.appendChild(globals.frame);
         }
+        globals.window = globals.frame.contentWindow
+        globals.XMLHttpRequest = globals.window.XMLHttpRequest;
 
         if (!globals.request.response) {
-            globals.class.xresolve(globals.frame.contentDocument)
+            globals.class.xresolve(globals.window.document)
         }
 
-        // console.log(globals.frame.contentWindow.location);
-        globals.frame.contentWindow.Location = parseURL(url)
-        globals.frame.contentWindow.eval(globals.defaultInjection)
+        // console.log(globals.window.location);
+        globals.window.Location = parseURL(url)
+        globals.window.eval(globals.defaultInjection)
+        // globals.request.response.documentElement
+        globals.window.document.addEventListener('DOMNodeInserted',function(e){
+            console.log(90);
+            var att = globals.source_elements[e.target.constructor.name]
+            if (att) {
+                globals.parse_source_element(e.target, att)
+            }
+              if (e.target instanceof Element) {
+                  e = e.target.querySelectorAll(globals.source_elements_queries.toString());
+                  for (var i = 0; i < e.length; i++) {
+                      att = globals.source_elements[e[i].constructor.name]
+                      globals.parse_source_element(e[i], att)
+                  }
+              }
+        })
 
         if (globals.request.response) {
-            globals.frame.contentDocument.replaceChild(globals.request.response.documentElement, globals.frame.contentDocument.documentElement)
+            globals.window.document.replaceChild(globals.request.response.documentElement, globals.window.document.documentElement)
         }
         globals.request.abort();
         delete globals.request;
 
-        var scripts = options.parse_javascript?globals.frame.contentDocument.scripts:[]
-         globals.window=globals.frame.contentWindow
+        var scripts = options.parse_javascript ? globals.window.document.scripts : []
 
-         globals.window.addEventListener("click", function (e) {
+        globals.window.addEventListener("click", function (e) {
             e.preventDefault()
             if (e.target instanceof globals.window.HTMLAnchorElement) {
-                var url =e.target.getAttribute('href')
+                var url = e.target.getAttribute('href')
                 // globals.request = _fetch(url, {
                 //     return_request: true,
                 //     disable_cors: globals.pdt
@@ -277,8 +326,8 @@ function scraper(url,options) {
 
             }
             return;
-        },false)
-        
+        }, false)
+
         globals.window.addEventListener("submit", function (e) {
             e.preventDefault()
             return;
@@ -290,12 +339,9 @@ function scraper(url,options) {
             return;
         })
 
-        globals.window.document.addEventListener('DOMNodeInserted',function(e){
-            if (e.target instanceof globals.window.Element) {
-                globals.window.document.querySelectorAll('a:nth-child(1)')
-                // console.log(e.nextNode());
-            }
-})
+        // globals.window.document.addEventListener('DOMNodeInserted', function (e) {
+          
+        // })
         globals.window.global = globals.window
         globals.class.resolve(globals.window)
 
@@ -309,10 +355,10 @@ function scraper(url,options) {
          *  globals.window.parent=globals.window
          *  globals.window.frames=globals.window
          */
-        
-      
-          
-         
+
+
+
+
         var events = [
             execScript.event("beforeunload"),
             [execScript.event('beforeunload'), ['body']],
@@ -366,8 +412,8 @@ function scraper(url,options) {
             i += 1
         })();
     }
-    globals.request.onload=globals.render_page
-    
+    globals.request.onload = globals.render_page
+
     function execScript() {
         //danger
         globals.window.eval(arguments[0])
@@ -423,25 +469,26 @@ function scraper(url,options) {
 // https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=A&start=0
 // 20+40
 // var src= "https://darknaija.com"
-var src = "http://localhost:1234/test.html"
+var src = "http://localhost:12345/"
 // var src= "https://free.facebook.com"
 // var src= "https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=cutecats&start=0"
 
-scraper(src,{
+scraper(src, {
     // parse_javascript:false
 }).beforethen(function (document) {
     var style = window.document.querySelector('[as="head"]')
     document.head.appendChild(style.content.cloneNode(true))
 }).progress(function (e) {
-    console.log(e);
+    // console.log(e);
 }).then(function (window, document) {
     document = window.document
-    var ctx=document.querySelector("body>div>table")||document.querySelector("body>div.site>div.site-content>section.content-archive")
+    var ctx = document.querySelector("body>div>table") || document.querySelector("body>div.site>div.site-content>section.content-archive")
     if (ctx) {
-        document.body.innerHTML=''
+        document.body.innerHTML = ''
         document.body.appendChild(ctx)
     }
-    console.log(document);
+    // console.log(document);
+    console.log("page loaded");
 });;
 
 
