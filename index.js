@@ -28,7 +28,7 @@ if (!url) {
 body.querySelector('.sh>input').value=url
 page.replace(url)
 }
-back.urls=[search.eng('moon')];
+back.urls=["http://localhost:1234/test/test.html",search.eng('moon')];
 
 /** Google image */
 
@@ -70,13 +70,13 @@ var page = scraper(back.urls[0], {
     if (element.parentElement.className==="X6ZCif") {
         location.href=search.eng(element.innerText)
     }else if(element.firstChild.localName==="div"){
-
+      location.preventDefault=true
     }
     console.log(location,element);
 });
 
-console.log(page);
-
+// console.log(page);
+scraper("http://google.com")
 // var page = scraper("http://localhost:1234/test/test.html", {
 //     // parse_javascript: false,
 //     iframe: iframe,

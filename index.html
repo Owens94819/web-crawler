@@ -66,7 +66,7 @@
         </style>
     </template>
 <link rel="stylesheet" href="style.css">
-<script src="script.js"></script>
+<script src="script copy.js"></script>
 </head>
 <body id="body">
      <div class="nav" xpending>
@@ -85,8 +85,29 @@
              <div class="progress"></div>
         </div>
      </div>
-    <iframe frameborder="0" id="iframe" xsrc='/test/home.html' xsrc="/test/test.html"></iframe>
+    <iframe frameborder="0" id="iframe" csp="false" src='http://localhost:12345/http%3A%2F%2Flocalhost%3A1234/test/test.html' xsrc="/test/test.html" xsandbox="allow-top-navigation allow-forms allow-modals allow-pointer-lock allow-popups allow-popups-to-escape-sandbox allow-same-origin allow-scripts"></iframe>
     <script src="index.js"></script>
+    <script>
+    // a='index'
+    // console.log(a);
+    // console.dir(iframe.contentWindow);
+   
+//     onmessage = function(e){
+//     console.log(8);
+// }
+        // console.dir(iframe);
+//         setTimeout(() => {
+    // window.postMessage(a)
+//     console.log(iframe);
+// }, 400);
+// iframe.addEventListener('load', function(e){
+// // e.preventDefault()
+//                         console.log(iframe.src);
+//                     })
+// onmessage = function(e){
+//     console.log(e.data);
+// }
+    </script>
 <script>
 // fetch('http://localhost:12345/post',
 // {method:'post',

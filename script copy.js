@@ -77,7 +77,7 @@ function scraper(url, options) {
         method: 'get',
         // body:'',
         // options: {},
-        headers:{
+        headers: {
             returned_content_type: "text/html; charset=UTF-8"
         },
         disable_cors: false
@@ -102,11 +102,12 @@ function scraper(url, options) {
         return pr.replace(/\/$|$/, ch.replace(/^\/|^/, '/'))
     }
 
+
     /** @ACTION api enveroment*/
     if (location.hostname.search(/^localhost|^$/) >= 0) {
-        _fetch.cors_url = "http://localhost:12345/api/fetch/"
+        _fetch.cors_url = "http://localhost:12345/"
     } else {
-        _fetch.cors_url = "https://anti-cors.cyclic.app/api/fetch/"
+        _fetch.cors_url = "https://anti-cors.cyclic.app/api/ifetch/"
     }
 
 
@@ -134,7 +135,7 @@ function scraper(url, options) {
                 if (pathparse[i] === "..") {
                     loc.parentpathname.pop()
                     continue;
-                } else if (pathparse[i] === "." || (pathparse[i] === ""&&i+1<pathparse.length)) {
+                } else if (pathparse[i] === "." || (pathparse[i] === "" && i + 1 < pathparse.length)) {
                     continue;
                 }
                 loc.parentpathname.push(pathparse[i])
@@ -195,7 +196,7 @@ function scraper(url, options) {
                 progress: function () {
                     globals.callAll(arguments.callee.events, globals.toPercentage(globals.progress.loaded, globals.progress.total), globals.progress.loaded, globals.progress.total)
                 },
-                redirection : function(){
+                redirection: function () {
                     globals.callAll(arguments.callee.events, arguments[0], arguments[1])
                 }
         },
@@ -212,11 +213,11 @@ function scraper(url, options) {
         New_Element_Functions: {
             HTMLAnchorElement: function () {
                 var elm = parseURL(arguments[0].href)
-                elm.preventDefault=false
+                elm.preventDefault = false
                 if (elm.protocol.search(/^https?\:/) >= 0) {
-                    globals.class.redirection(elm,arguments[0])
+                    globals.class.redirection(elm, arguments[0])
                     if (elm.preventDefault) {
-                        globals.state='opened'
+                        globals.state = 'opened'
                         return
                     }
                     globals.replace_window(_fetch(elm.href, {
@@ -227,8 +228,8 @@ function scraper(url, options) {
             },
             HTMLFormElement: function (elm) {
                 _elm = parseURL(elm.action)
-                _elm.url=_elm.origin+_elm.pathname
-                
+                _elm.url = _elm.origin + _elm.pathname
+
                 if (_elm.protocol.search(/^https?\:/) >= 0) {
                     globals.state = "opened"
                     var bd = '';
@@ -241,26 +242,26 @@ function scraper(url, options) {
                             bd += "&" + encodeURIComponent(elm[i].name) + '=' + encodeURIComponent(elm[i].value)
                         }
                     }
-                    _elm.url=_elm.url+"?"+bd;
-                    if (elm.method==="get") {
+                    _elm.url = _elm.url + "?" + bd;
+                    if (elm.method === "get") {
                         // bd=null
                     }
                     // elm.enctype||
-                   
-                    
+
+
                     globals.replace_window(_fetch(_elm.url, {
                         method: elm.method,
                         return_request: true,
                         disable_cors: globals.pdt,
                         body: bd,
-                        headers:{
-                            "Content-Type": elm.enctype||elm.encoding||"application/x-www-form-urlencoded",
+                        headers: {
+                            "Content-Type": elm.enctype || elm.encoding || "application/x-www-form-urlencoded",
                             returned_content_type: "text/html; charset=UTF-8"
                         },
                         options: {
                             method: elm.method,
                             headers: {
-                                "Content-Type":elm.enctype|| elm.encoding||"application/x-www-form-urlencoded"
+                                "Content-Type": elm.enctype || elm.encoding || "application/x-www-form-urlencoded"
                             }
                         }
                     }).request)
@@ -371,7 +372,7 @@ function scraper(url, options) {
     }
 
     globals.class.return.replace = function (url) {
-        globals.replace_window( _fetch(url, {
+        globals.replace_window(_fetch(url, {
             return_request: true,
             disable_cors: globals.pdt
         }).request);
@@ -458,6 +459,7 @@ function scraper(url, options) {
             var load = function () {
                 globals.frame.removeEventListener('load', load)
                 globals.window = globals.frame.contentWindow
+             
                 globals.XMLHttpRequest = globals.window.XMLHttpRequest;
                 globals.window.document.FRAME_NODE = true
 
@@ -502,7 +504,9 @@ function scraper(url, options) {
                     }
                 } else {
                     globals.frame.contentWindow.location.reload()
-                    globals.frame.addEventListener('load', load)
+                    globals.frame.addEventListener('load', function(e){
+                        console.log(e);
+                    })
                 }
             } else {
                 globals.window = {
@@ -634,7 +638,7 @@ function scraper(url, options) {
     }
 
     globals.replace_window = function (request) {
-        if (request /*instanceof globals.XMLHttpRequest*/) {
+        if (request /*instanceof globals.XMLHttpRequest*/ ) {
             if (globals.request) {
                 globals.request.abort();
             }
@@ -707,13 +711,42 @@ function scraper(url, options) {
         });
     }
 
+    // _fetch("http://localhost:12345/post", {
+    //     disable_cors: globals.pdt,
+    //     type: 'text',
+    //     method: 'post',
+    //     body: 'a=9',
+    //     headers:{
+    //         'Content-Type': 'application/x-www-form-urlencoded'
+    //     },
+    //     options: {
+    //         method: 'post',
+    //         headers: {
+    //             'Content-Type': 'application/x-www-form-urlencoded'
+    //         }
+    //     }
+    // }).then(function (e) {
+    //     console.log(e.response);
+    // });
+    //return
+
     /** load page */
     if (url) {
-        globals.replace_window(_fetch(url, {
-            return_request: true,
-            disable_cors: globals.pdt
-        }).request);
+        // console.log(globals.location,url);
+        url=_fetch.url(url)
+        // console.log(url);
+        // iframe.src="http://localhost:12345/http%3A%2F%2Flocalhost%3A1234/test/test.html"
+        iframe.addEventListener('load',function(){
+            iframe.contentWindow.postMessage({
+                src:location.origin+'/injection/script.js',
+            },'*')
+        })
+        // globals.replace_window(_fetch(url, {
+        //     return_request: true,
+        //     disable_cors: globals.pdt
+        // }).request);
     }
 
+    
     return globals.class.return
 }

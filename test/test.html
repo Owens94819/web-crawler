@@ -1,32 +1,56 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <script src="test.js"></script>
+    <script>
+        addEventListener('message', function (e) {
+            e = e.data
+            if (e.src) {
+                var s = document.createElement('script')
+                s.async = true
+                s.src = e.src;
+                document.head.appendChild(s)
+                s=undefined
+            } else if (e.script) {
+                eval(e.script)
+            }
+            e=undefined;
+            document.body.innerHTML+=9
+        })
+    </script>
+    <script src="test.js" d="7"> </script>
     <style>
-        html>body{
+        html>body {
             margin-bottom: 500px;
         }
     </style>
 </head>
+
 <body>
-   
-<!-- <div> -->
-<img src="" alt="" srcset="">
-    <a href="http://localhost:12345">
-href
+
+    <!-- <div> -->
+    <img src="" alt="" srcset="">
+    <a href="/home.html">
+        home
     </a>
-    <form action="http://localhost:12345/post/?e=5" method="get" xenctype="multipart/form-data" id="form" enctype="application/x-www-form-urlencoded">
-<input type="text" name="#name">
-<input type="text" name="name2">
-<input type="text" name="name3">
-<button type="submit" id="btn">fff</button>
+    <a href="https://free.facebook.com">
+        fb
+    </a>
+    <form action="http://localhost:12345/post?e=5" method="post" xenctype="multipart/form-data" id="form"
+        enctype="application/x-www-form-urlencoded">
+        <input type="text" name="#name">
+        <input type="text" name="name2">
+        <input type="text" name="name3">
+        <button type="submit" id="btn">fff</button>
     </form>
     <h1>hello</h1>
-    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Impedit nemo dolorum laudantium quidem minima delectus. Harum deserunt voluptatum vitae? Quisquam omnis temporibus nam totam nulla, fuga soluta? Et, neque sed!</p>
-<!-- </div> -->
+    <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Impedit nemo dolorum laudantium quidem minima delectus.
+        Harum deserunt voluptatum vitae? Quisquam omnis temporibus nam totam nulla, fuga soluta? Et, neque sed!</p>
+    <!-- </div> -->
 </body>
+
 </html>
