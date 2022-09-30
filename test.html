@@ -6,11 +6,24 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <script>
-        console.log(1);
+        // window.onload = function(){
+        //     alert(999)
+        //     console.log(9999);
+        // }
+        document.addEventListener("DOMContentLoaded",function(e){
+                console.log(2);
+                // _promisedScripts.resolve()
+            })
+        // console.log(33);
     </script>
-    <script src="/test.js"></script>
+    <script src="test.js"></script>
 </head>
-<body>
+<body onload="console.log('a-body')">
+    <script>
+        document.body.onload = function(){
+            console.log(99);
+        }
+    </script>
     <h1>hello</h1>
     <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Impedit nemo dolorum laudantium quidem minima delectus. Harum deserunt voluptatum vitae? Quisquam omnis temporibus nam totam nulla, fuga soluta? Et, neque sed!</p>
 </body>

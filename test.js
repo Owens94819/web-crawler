@@ -1,4 +1,5 @@
-console.dir(document);
-addEventListener("click",function(){
-    console.log(888888);
-})
+
+// addEventListener("load",function(e){
+//     console.log(e.type);
+// })
+// console.log(4);
