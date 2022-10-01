@@ -316,10 +316,17 @@ parseURL.isdomain = function(url){
  * https://free.facebook.com
  * https://google.com
  * http://localhost:1234/test.html
+ * https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=dogs
+ *                      /search?q=logos&hl=en-NG&gbv=2&biw=1350&bih=663&ie=UTF-8&tbm=isch&ei=n8Q3Y-fBDaWAxc8PwMOMgAs&start=20&sa=N
+ *                     /search?q=logos&hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&ei=GcU3Y5ylDPCBxc8P7buLiAo&start=40&sa=N
  */
-scraper("https://www.google.com.ng/search?hl=en-NG&gbv=2&tbm=isch&q=cats&chips=q:hhh,g_1:steph&sa=X&ved=0ahUKEwjx_uqikr76AhVDX_EDHUwnAq8Q4lYIDCgB").then(function (window) {
+// 20+40
+scraper("https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=A&start=0").then(function (window) {
     var document=window.document;
-    console.log(window);
+    var ctx=document.querySelector("body>div>table")
+    document.body.innerHTML=''
+    document.body.appendChild(ctx)
+    console.log();
 });
 
 
