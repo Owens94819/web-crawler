@@ -26,40 +26,24 @@
     <h1>88</h1>
     <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Soluta similique nesciunt, magni corrupti dolores repudiandae dicta quisquam accusantium recusandae est asperiores unde rerum esse sunt adipisci explicabo? Unde, porro eligendi.</p>
 <script>
-
-
-function _parseURL(url) {
-    var loc={}
-url=url.trim().replace(/\n/img,'').toLowerCase().replace(/\\/img,'/')
-loc.href=url.trim().replace(/\n/img,'').toLowerCase()
-loc.origin=[loc.href.match(/^https?\:[\/\\][\/\\]\w[^\/\\#]+\w/)].toString()
-loc.__path__=loc.href.replace(loc.origin,'')
-loc.pathname=loc.__path__.replace(/#[^]+/,'').trim()||'/'
-loc.protocol=[loc.origin.match(/^https?\:/)].toString()
-loc.host=loc.origin.replace(/^https?\:[\\\/][\\\/]/,'')
-loc.hostname=loc.host.replace(/\:[^]*/,'')
-loc.__hash__=[loc.__path__.match(/#[^?]+/,'')].toString().substring(1)
-loc.hash=[loc.__path__.match(/#[^]+/,'')].toString()
-loc.qeury=[loc.hash.match(/\?[^]+/,'')].toString()
-var pathparse=loc.pathname.split('/')
-loc.pathname=[]
-for (var i = 0; i < pathparse.length; i++) {
-    if (pathparse[i]==="..") {
-        loc.pathname.pop()
-        continue;
-    }else if(pathparse[i]==="."||pathparse[i]===""){
-     continue;
+ o={
+         get e() {
+        return 2
     }
-    loc.pathname.push(pathparse[i])
-}
-
-loc.pathname='/'+loc.pathname.join('/')
-loc.href=loc.origin+loc.pathname+loc.hash;
-return loc
-}
-
-// var u =parseURL("https://www.gstatic.com/////firebasejs/8.9.1/firebase-firestore.js#hh?hh=90")
-// console.log(u);
+ };
+Object.defineProperty(this,'locationl',{
+    get:function() {
+        return 2
+    }
+})
+// JSON.stringify(location,function(){
+//     console.log(arguments);
+// })
+// location.href=9
+// addEventListener("beforeunload",function(e){
+//     e.preventDefault()
+// return e.returnValue ="leavin?"
+// },{capture:false})
 </script>
 </body>
 </html>

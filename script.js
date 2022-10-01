@@ -8,13 +8,26 @@ function scraper(url) {
 
         var request = new XMLHttpRequest();
         request.responseType = obj.type
-        if (obj.disable_cors) {
-            url = _fetch.url(url);
-        }
+        request.url=url
 
+        if (obj.disable_cors) {
+            url = _fetch.url(url,obj.query);
+        }
+// request.withCredentials=true
         request.open("GET", url, true)
         request.send()
 
+// console.log(request);
+request.onreadystatechange = function(){
+if (request.readyState===request.HEADERS_RECEIVED) {
+    if (obj.disable_cors) {
+        request.url=request.getResponseHeader("X-Url")||url
+    }else{
+        request.url=request.responseURL
+    }
+    console.log(request);
+}
+}
         var prm = new Promise(function (r) {
             request.onload = function () {
                 r(request)
@@ -32,8 +45,18 @@ function scraper(url) {
         method: "GET",
         disable_cors: false
     }
-    _fetch.url = function (url) {
-        return _fetch.cors_url + encodeURIComponent(btoa(url))
+    _fetch.url = function (url,qr) {
+        url=_fetch.cors_url + encodeURIComponent(btoa(url))
+        if (qr instanceof Object) {
+            if (qr.regex instanceof Array) {
+                qr.regex[0]=qr.regex[0].toString()//.replace(/\\/img,'\\')
+            }
+            qr=JSON.stringify(qr).toLowerCase()
+            // qr=qr.replace(/[^a-z0-9\{\}\:\,\"\'\[\]\\\/]/img,'')
+            // console.log(qr);
+            url+="?s="+encodeURIComponent(btoa(qr))
+        }
+        return url
     }
     _fetch.isdomain = function(url){
         return url.search(/^https?:\/\/+[^]*[:.]+\w/)>=0
@@ -45,8 +68,21 @@ function scraper(url) {
     }
     _fetch.cors_url = "https://nimo2000.herokuapp.com/api/fetch/"
     _fetch.cors_url = "http://localhost:12345/api/fetch/"
+    // _fetch("http://localhost:1234/test.js", {
+    //     _return_request: true,
+    //     disable_cors:true,
+    //     type:'text',
+    //     query:{
+    //         top_text:"",
+    //         regex:[/\blocation(\.[^\W]+)?(\s?)+=?/img,'__$&']
+    //     }
+    // }).then(function(e){
+    // console.log(e.getAllResponseHeaders());
+    // console.log(e.getResponseHeader("X-Url"));
 
+    // });
 
+    // return 
 function parseURL(url) {
     var loc={}
 url=url.trim().replace(/\n/img,'').toLowerCase().replace(/\\/img,'/')
@@ -113,6 +149,7 @@ parseURL.isdomain = function(url){
                 resolve: new Function()
         },
         pdt:true,
+        defaultInjection:``,
         location:parseURL(url)
     }
     globals.request= _fetch(url, {
@@ -127,9 +164,10 @@ parseURL.isdomain = function(url){
     
 
     globals.request.onload = function () {
-         //   url=globals.request.responseURL
-            // globals.location=parseURL(url)
-// console.log(globals.request.response);
+        
+        globals.location=parseURL(globals.request.url)
+        url=globals.location.href
+        
             // return
             var _promisedScripts = {}
             var promisedScripts = new Promise(function () {
@@ -146,42 +184,47 @@ parseURL.isdomain = function(url){
             // frame.width = 0;
             // frame.height = 0;
             // frame.style.display = 'none';
-            frame.addEventListener("load", function (e) {
+            //frame.addEventListener("load", function (e) {
                 // _promisedScripts.resolve()
-            })
+          //  })
             document.body.appendChild(frame);
             // console.log(frame.contentWindow.location);
+            frame.contentWindow.__location=parseURL(url)
+            frame.contentWindow.eval(globals.defaultInjection)
             frame.contentDocument.replaceChild(globals.request.response.documentElement, frame.contentDocument.documentElement)
             globals.request.abort();
             delete globals.request;
-
+            
             var scripts = frame.contentDocument.scripts
             var window = frame.contentWindow
-
+            
             window.global = window
             execScript.window = window;
-
+            globals.class.resolve(window)
+            
             /**
              * @act makes frame full window (no parent)
              *   window.top=window
              *  window.parent=window
              *  window.frames=window
              */
-
-
+            
+            
             // window.self=window
-
+            
             // window.addEventListener=window.document.addEventListener
             // window.document;
             // window.alert = new Function()
             // window.confirm = new Function()
             // window.prompt = new Function()
-
+            
             var events = [
                 // new Event('DOMContentLoaded'),
-                execScript.event("DOMContentLoaded"),
-                execScript.event("readstatechange"),
-                // execScript.event('load')
+                execScript.event("beforeunload"),
+                [execScript.event('beforeunload'), ['body']],
+                [execScript.event("DOMContentLoaded")],
+                [execScript.event("readstatechange")],
+                execScript.event('load'),
                 [execScript.event('load'), ['body']]
             ]
 
@@ -205,6 +248,8 @@ parseURL.isdomain = function(url){
                                         }
                                         window.document[arguments[0]].dispatchEvent(ev)
                                     })
+                                }else{
+                                window.document.dispatchEvent(ev)
                                 }
                             } else {
                                 window.dispatchEvent(arguments[0])
@@ -274,9 +319,13 @@ parseURL.isdomain = function(url){
                 /**
                  * @todo disable-cors
                  */
+                // console.log(globals.location,url);
                 _fetch(parseURL.join(script.getAttribute('src')).href, {
                     type: "text",
                     disable_cors:globals.pdt,
+                    query:{
+                        regex:[/\blocation(\.[^\W]+)?(\s?)+=?/img,'__$&']
+                    }
                 }).then(function () {
                     if (arguments[0].statusText==='OK') {
                         r(arguments[0].response)
@@ -296,10 +345,11 @@ parseURL.isdomain = function(url){
 }
 /**
  * https://free.facebook.com
+ * https://google.com
  * http://localhost:1234/test.html
  */
-scraper("http://localhost:1234/test.html").then(function (e) {
-    console.log(e);
+scraper("https://google.com").then(function (window) {
+    var document=window.document;
 });
 
 
