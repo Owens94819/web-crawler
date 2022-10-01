@@ -372,7 +372,7 @@ function scraper(url,options) {
 /**
  * https://free.facebook.com
  * https://google.com
- * porn api https://cdn-darknaija.com/wp-content/uploads/
+ * p**n api https://cdn-darknaija.com/wp-content/uploads/
  * http://localhost:1234/test.html
  * https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=dogs
  *                      /search?q=logos&hl=en-NG&gbv=2&biw=1350&bih=663&ie=UTF-8&tbm=isch&ei=n8Q3Y-fBDaWAxc8PwMOMgAs&start=20&sa=N
@@ -380,10 +380,10 @@ function scraper(url,options) {
  */
 // https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=A&start=0
 // 20+40
+// var src= "https://darknaija.com"
 var src = "http://localhost:1234/test.html"
 var src= "https://free.facebook.com"
 var src= "https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=A&start=0"
-var src= "https://darknaija.com"
 
 scraper(src,{
     load_javascript:false
