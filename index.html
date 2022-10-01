@@ -5,19 +5,55 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
-    <template id="p">
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta http-equiv="X-UA-Compatible" content="IE=edge">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Document</title>
-        </head>
-        <body>
-            <h1>8</h1>
-        </body>
-        </html>
+    <template as="head">
+        <style>
+            body{
+               background-color: red;
+color: #333333;
+font-family: arial,sans-serif;
+  padding: 0;
+  margin: 0;
+  max-width: none;
+  min-width: 0;
+  overflow: auto;
+  display: flex;
+  width: 100%;
+  flex-wrap: wrap;
+  flex-direction: column;
+            }
+            body>table.GpQGbf {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  width: 100%;
+  overflow: auto;
+}
+body>table.GpQGbf>tbody {
+  display: flex;
+  max-width: none;
+  width: auto;
+  overflow: auto;
+  flex-direction: column;
+  flex-wrap: wrap;
+}
+body>table.GpQGbf>tbody>tr {
+  width: 100%;
+  /* height: 77%; */
+  display: flex;
+  overflow: auto;
+  flex-wrap: wrap;
+  flex-direction: row;
+}
+body>table.GpQGbf>tbody>tr>td.e3goi {
+  display: flex;
+  flex-direction: row;
+  width: 25%;
+  overflow: hidden;
+}
+.meta-category{
+    display: none;
+}
+        </style>
     </template>
 <script src="script.js"></script>
 <style>
