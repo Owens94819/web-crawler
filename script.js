@@ -191,7 +191,9 @@ parseURL.isdomain = function(url){
             // console.log(frame.contentWindow.location);
             frame.contentWindow.__location=parseURL(url)
             frame.contentWindow.eval(globals.defaultInjection)
-            frame.contentDocument.replaceChild(globals.request.response.documentElement, frame.contentDocument.documentElement)
+            if (globals.request.response) {
+                frame.contentDocument.replaceChild(globals.request.response.documentElement, frame.contentDocument.documentElement)
+            }
             globals.request.abort();
             delete globals.request;
             
@@ -219,7 +221,6 @@ parseURL.isdomain = function(url){
             // window.prompt = new Function()
             
             var events = [
-                // new Event('DOMContentLoaded'),
                 execScript.event("beforeunload"),
                 [execScript.event('beforeunload'), ['body']],
                 [execScript.event("DOMContentLoaded")],
@@ -239,7 +240,6 @@ parseURL.isdomain = function(url){
                                 window.dispatchEvent(ev)
                                 if (arguments[0][1]) {
                                     arguments[0][1].forEach(function () {
-                                        // console.log(window.document[arguments[0]]['on' + ev.type]);
                                         if (typeof window.document[arguments[0]]['on' + ev.type] === "function") {
                                             // window.document[arguments[0]].addEventListener(ev.type, window.document[arguments[0]]['on' + ev.type])
                                         } else if (window.document[arguments[0]].getAttribute('on' + ev.type)) {
@@ -254,23 +254,6 @@ parseURL.isdomain = function(url){
                             } else {
                                 window.dispatchEvent(arguments[0])
                             }
-
-                            // if (arguments[0] instanceof Array) {
-                            //     var ev = arguments[0][0];
-                            //     window.document.dispatchEvent(ev)
-                            //     if (arguments[0][1]) {
-                            //         arguments[0][1].forEach(function () {
-                            //             if (typeof window.document[arguments[0]]['on' + ev.type] === "function") {
-                            //                 window.document[arguments[0]].addEventListener(ev.type, window.document[arguments[0]]['on' + ev.type])
-                            //             } else if (window.document[arguments[0]].getAttribute('on' + ev.type)) {
-                            //                 window.document[arguments[0]].addEventListener(ev.type, new execScript.window.Function('var event=arguments[0];' + window.document[arguments[0]].getAttribute('on' + ev.type)))
-                            //             }
-                            //             window.document[arguments[0]].dispatchEvent(ev)
-                            //         })
-                            //     }
-                            // } else {
-                            //     window.document.dispatchEvent(arguments[0])
-                            // }
                         });
                     });
                     scripts = undefined
@@ -291,21 +274,7 @@ parseURL.isdomain = function(url){
 
     function execScript() {
        //danger
-        // try {
             execScript.window.eval(arguments[0])
-        // } catch (error) {
-            
-        // }
-        //recommended
-        // new execScript.window.Function(`
-        // // var window =arguments[0];
-        // // var global=window;
-        // // var document = window.document;
-        // // var addEventListener=window.addEventListener
-        // // var alert = window.alert = new Function()
-        // // var confirm = window.confirm = new Function()
-        // // var prompt = window.prompt = new Function();
-        // ` + arguments[0])(execScript.window)
     }
     execScript.event = function (name) {
         var ev = execScript.window.document.createEvent("Event");
@@ -348,8 +317,9 @@ parseURL.isdomain = function(url){
  * https://google.com
  * http://localhost:1234/test.html
  */
-scraper("https://google.com").then(function (window) {
+scraper("https://www.google.com.ng/search?hl=en-NG&gbv=2&tbm=isch&q=hhh&chips=q:hhh,g_1:steph&sa=X&ved=0ahUKEwjx_uqikr76AhVDX_EDHUwnAq8Q4lYIDCgB").then(function (window) {
     var document=window.document;
+    console.log(document);
 });
 
 
