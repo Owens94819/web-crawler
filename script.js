@@ -203,7 +203,7 @@ parseURL.isdomain = function(url){
             window.global = window
             execScript.window = window;
             globals.class.resolve(window)
-            
+
             /**
              * @act makes frame full window (no parent)
              *   window.top=window
@@ -317,7 +317,7 @@ parseURL.isdomain = function(url){
  * https://google.com
  * http://localhost:1234/test.html
  */
-scraper("https://www.google.com.ng/search?hl=en-NG&gbv=2&tbm=isch&q=hhh&chips=q:hhh,g_1:steph&sa=X&ved=0ahUKEwjx_uqikr76AhVDX_EDHUwnAq8Q4lYIDCgB").then(function (window) {
+scraper("https://www.google.com.ng/search?hl=en-NG&gbv=2&tbm=isch&q=cats&chips=q:hhh,g_1:steph&sa=X&ved=0ahUKEwjx_uqikr76AhVDX_EDHUwnAq8Q4lYIDCgB").then(function (window) {
     var document=window.document;
     console.log(document);
 });
