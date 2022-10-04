@@ -19,14 +19,29 @@ if (window.MutationObserver) {
 } else {
     observe = function (foo) {
         console.error('browser not support')
-        addEventListener('DOMSubtreeModified' || 'DOMNodeInsertedIntoDocument' || 'DOMNodeInserted' || 'DOMContentLoaded' || 'DOMCharacterDataModified' || 'DOMNodeInsertedIntoDocument', function (e) {
-            e = e.target
-            console.log(e);
-            foo(e);
+        addEventListener('DOMNodeInserted', function (e) {
+            foo(e.target);
         })
     }
 }
-
+(window.MutationObserver?function (foo, elm) {
+    new MutationObserver(function (e) {
+        for (var i = 0; i < e.length; i++) {
+            for (var _i = 0; _i < e[i].addedNodes.length; _i++) {
+                foo(e[i].addedNodes[_i]);
+            }
+        }
+    }).observe(elm || document, {
+        childList: true,
+        characterData: true,
+        subtree: true,
+    })
+}:function (foo) {
+    console.error('browser not support')
+    addEventListener('DOMNodeInserted', function (e) {
+        foo(e.target);
+    })
+})()
 // observe(function(e){
 //     console.log(e);
 // })
