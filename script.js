@@ -559,7 +559,7 @@ function scraper(url, options) {
                 execScript.event('load'),
                 [execScript.event('load'), ['body']]
             ] : [];
-
+// events=[]
             var i = 0;
             var call;
             (call = function () {
@@ -568,7 +568,6 @@ function scraper(url, options) {
                         events.forEach(function () {
                             if (arguments[0] instanceof Array) {
                                 var ev = arguments[0][0];
-                                globals.window.dispatchEvent(ev)
                                 if (arguments[0][1]) {
                                     arguments[0][1].forEach(function () {
                                         if (typeof globals.window.document[arguments[0]]['on' + ev.type] === "function") {
@@ -580,6 +579,7 @@ function scraper(url, options) {
                                         globals.window.document[arguments[0]].dispatchEvent(ev)
                                     })
                                 } else {
+                                    globals.window.dispatchEvent(ev)
                                     globals.window.document.dispatchEvent(ev)
                                 }
                             } else {
@@ -690,16 +690,23 @@ function scraper(url, options) {
 // https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=A&start=0
 // 20+40
 // var src= "https://darknaija.com"
-var src = "http://localhost:1234/test.html"
+// var src = "http://localhost:1234/test.html"
 // var src= "https://free.facebook.com"
-// var src= "https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=cutecats&start=0"
+var src= "https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=cutecats&start=0"
 var d = document;
 scraper(src, {
-    parse_javascript: false,
+    // parse_javascript: false,
     iframe: iframe,
 }).beforethen(function (document) {
-    // var style = window.document.querySelector('[as="head"]')
-    // document.head.appendChild(style.content.cloneNode(true))
+    try {
+        document.querySelector('body>div').remove()
+    document.querySelector('body>div:last-child').remove()
+    document.querySelector('body>div:last-child').remove()
+    } catch (error) {
+        
+    }
+    var style = window.document.querySelector('[as="head"]')
+    document.head.appendChild(style.content.cloneNode(true))
 }).progress(function (e) {
     // console.log(e);
 }).then(function (window, document) {

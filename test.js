@@ -1,47 +1,9 @@
 // location=9
-// addEventListener("load",function(e){
-//     console.log(e.type);
-// })
-if (window.MutationObserver) {
-    observe = function (foo, elm) {
-        new MutationObserver(function (e) {
-            for (var i = 0; i < e.length; i++) {
-                for (var _i = 0; _i < e[i].addedNodes.length; _i++) {
-                    foo(e[i].addedNodes[_i]);
-                }
-            }
-        }).observe(elm || document, {
-            childList: true,
-            characterData: true,
-            subtree: true,
-        })
-    }
-} else {
-    observe = function (foo) {
-        console.error('browser not support')
-        addEventListener('DOMNodeInserted', function (e) {
-            foo(e.target);
-        })
-    }
-}
-(window.MutationObserver?function (foo, elm) {
-    new MutationObserver(function (e) {
-        for (var i = 0; i < e.length; i++) {
-            for (var _i = 0; _i < e[i].addedNodes.length; _i++) {
-                foo(e[i].addedNodes[_i]);
-            }
-        }
-    }).observe(elm || document, {
-        childList: true,
-        characterData: true,
-        subtree: true,
-    })
-}:function (foo) {
-    console.error('browser not support')
-    addEventListener('DOMNodeInserted', function (e) {
-        foo(e.target);
-    })
-})()
+addEventListener("load",function(e){
+    console.log(e.type);
+})
+
+console.log(88);
 // observe(function(e){
 //     console.log(e);
 // })
