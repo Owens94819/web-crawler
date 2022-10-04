@@ -97,9 +97,9 @@ function scraper(url, options) {
         ch = ch.trim()
         return pr.replace(/\/$|$/, ch.replace(/^\/|^/, '/'))
     }
-    _fetch.cors_url = "http://localhost:12345/api/fetch/"
+    // _fetch.cors_url = "http://localhost:12345/api/fetch/"
     // _fetch.cors_url = "https://nimo2000.herokuapp.com/api/fetch/"
-    // _fetch.cors_url = "https://anti-cors.cyclic.app/api/fetch/"
+    _fetch.cors_url = "https://anti-cors.cyclic.app/api/fetch/"
 
     // _fetch("http://localhost:1234/test.js", {
     //     _return_request: true,
