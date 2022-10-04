@@ -98,6 +98,7 @@ function scraper(url, options) {
 
     /** @ACTION url location handler */
     function parseURL(url) {
+        url=url||"";
         var loc = {}
         url = url.trim().replace(/\n/img, '').toLowerCase().replace(/\\/img, '/')
         loc.href = url.trim().replace(/\n/img, '').toLowerCase()
@@ -239,9 +240,9 @@ function scraper(url, options) {
     }
 
 
-    if (globals.frame && globals.frame.src) {
-        globals.frame.src = globals.frame_default_src
-    }
+    // if (globals.frame && globals.frame.src) {
+    //     globals.frame.src = globals.frame_default_src
+    // }
 
     globals.callAll = function () {
         if (arguments[0] instanceof Array) {
@@ -252,10 +253,7 @@ function scraper(url, options) {
     }
 
 
-    globals.request = _fetch(url, {
-        return_request: true,
-        disable_cors: globals.pdt
-    }).request
+
 
 
 
@@ -309,6 +307,20 @@ function scraper(url, options) {
         return globals.class.return
     }
 
+    globals.class.return.replace = function (url) {
+        globals.request = _fetch(url, {
+            return_request: true,
+            disable_cors: globals.pdt
+        }).request
+        globals.replace_window(); 
+        return globals.class.return
+    }
+
+    globals.class.return.parseURL=parseURL;
+    globals.class.return.current_location = function(){
+        return globals.location
+    };
+    
     globals.parse_source_element = function () {
         if (arguments[0].__parsed) {
             return
@@ -411,7 +423,12 @@ function scraper(url, options) {
             if (globals.frame) {
                 if (!globals.frame_ready) {
                     globals.frame_ready = true
-                    load()
+                    if (globals.frame.src.trim()) {
+                        globals.frame.src=globals.frame_default_src;
+                        globals.frame.addEventListener('load', load)
+                    }else{
+                        load()
+                    }
                 } else {
                     globals.frame.contentWindow.location.reload()
                     globals.frame.addEventListener('load', load)
@@ -546,9 +563,13 @@ function scraper(url, options) {
     }
 
     globals.replace_window = function () {
+        globals.progress.loaded=0;
         globals.request.addEventListener("readystatechange", function () {
-            if (typeof globals.progress.total !== 'number') {
-                globals.progress.total = arguments[0].target.DONE + 1
+            // if (typeof globals.progress.total !== 'number') {
+            //     globals.progress.total = arguments[0].target.DONE + 1
+            // }
+            if (globals.progress.loaded===0) {
+               globals.class.progress()
             }
             globals.progress.loaded = arguments[0].target.readyState
             globals.class.progress()
@@ -557,6 +578,7 @@ function scraper(url, options) {
             globals.progress.loaded += globals.toPercentage(e.loaded, e.total, 0.9)
             globals.class.progress()
         })
+
         globals.request.addEventListener('load', globals.render_page)
         globals.request.addEventListener('error', globals.render_page)
     }
@@ -609,7 +631,13 @@ function scraper(url, options) {
     }
 
     /** load page */
-    globals.replace_window();
+    if (url) {
+        globals.request = _fetch(url, {
+            return_request: true,
+            disable_cors: globals.pdt
+        }).request
+        globals.replace_window(); 
+    }
 
     return globals.class.return
 }

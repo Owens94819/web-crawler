@@ -8,16 +8,17 @@
     <template as="head">
         <style>
             body {
-                background-color: red;
+                /* background-color: red; */
                 color: #333333;
                 font-family: arial, sans-serif;
-                padding: 0;
-                margin: 0;
+                /* padding: 0;
+                margin: 0; */
                 max-width: none;
                 min-width: 0;
                 overflow: auto;
                 display: flex;
                 width: 100%;
+                width: -webkit-fill-available;
                 flex-wrap: wrap;
                 flex-direction: column;
             }
@@ -60,70 +61,28 @@
             }
         </style>
     </template>
-    <style>
-        body {
-            margin: 0;
-            padding: 0;
-            overflow: hidden;
-        }
-
-        iframe {
-            width: 100vw;
-            height: 100vh;
-            background-color: #333333;
-            border: none;
-        }
-    </style>
+<link rel="stylesheet" href="style.css">
 <script src="script.js"></script>
 </head>
-<body>
-    <iframe frameborder="0" id="iframe"></iframe>
-    <script>
-/**
- * https://free.facebook.com
- * https://google.com
- * p**n api https://cdn-darknaija.com/wp-content/uploads/
- * http://localhost:1234/test.html
- * https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=dogs
- *                      /search?q=logos&hl=en-NG&gbv=2&biw=1350&bih=663&ie=UTF-8&tbm=isch&ei=n8Q3Y-fBDaWAxc8PwMOMgAs&start=20&sa=N
- *                     /search?q=logos&hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&ei=GcU3Y5ylDPCBxc8P7buLiAo&start=40&sa=N
- */
-// https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=A&start=0
-// 20+40
-// var src= "https://darknaija.com"
-var src = "http://localhost:1234/test.html"
-// var src= "https://free.facebook.com"
-// var src= "https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=cutecats&start=0"
-
-scraper(src, {
-    // parse_javascript: false,
-    iframe: iframe,
-}).beforethen(function (document) {
-    // try {
-    //     document.querySelector('body>div').remove()
-    // document.querySelector('body>div:last-child').remove()
-    // document.querySelector('body>div:last-child').remove()
-    // } catch (error) {
-        
-    // }
-    var style = window.document.querySelector('[as="head"]')
-    document.head.appendChild(style.content.cloneNode(true))
-}).progress(function (e) {
-    // console.log(e);
-}).then(function (window, document) {
-    document = window.document
-    var ctx = document.querySelector("body>div>table") || document.querySelector("body>div.site>div.site-content>section.content-archive")
-    if (ctx) {
-        // document.body.innerHTML = ''
-        // document.body.appendChild(ctx)
-    }
-    console.log("page loaded");
-}).catch(function (msg, window) {
-    console.log("page error", msg);
-});
-
-
-    </script>
+<body id="body">
+     <div class="nav" xpending>
+        <div class="bk">
+            <button onclick="back()" style="display: none;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="feather feather-arrow-left"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+                Go back</button>
+        </div>
+        <div class="sh">
+            <input type="url" placeholder="search..." autocomplete="additional-name">
+        </div>
+        <div class="sh-btn">
+            <button onclick="search()">search</button>
+        </div>
+        <div class="progress-wrapper">
+             <div class="progress"></div>
+        </div>
+     </div>
+    <iframe frameborder="0" id="iframe" src='/test/home.html'></iframe>
+    <script src="index.js"></script>
 </body>
 
 </html>
