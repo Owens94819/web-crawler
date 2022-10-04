@@ -97,9 +97,9 @@ function scraper(url, options) {
         ch = ch.trim()
         return pr.replace(/\/$|$/, ch.replace(/^\/|^/, '/'))
     }
-    // _fetch.cors_url = "http://localhost:12345/api/fetch/"
+    _fetch.cors_url = "http://localhost:12345/api/fetch/"
     // _fetch.cors_url = "https://nimo2000.herokuapp.com/api/fetch/"
-    _fetch.cors_url = "https://anti-cors.cyclic.app/api/fetch/"
+    // _fetch.cors_url = "https://anti-cors.cyclic.app/api/fetch/"
 
     // _fetch("http://localhost:1234/test.js", {
     //     _return_request: true,
@@ -690,9 +690,9 @@ function scraper(url, options) {
 // https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=A&start=0
 // 20+40
 // var src= "https://darknaija.com"
-// var src = "http://localhost:1234/test.html"
+var src = "http://localhost:1234/test.html"
 // var src= "https://free.facebook.com"
-var src= "https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=cutecats&start=0"
+// var src= "https://www.google.com/search?hl=en-NG&gbv=2&biw=1350&bih=663&tbm=isch&oq=&aqs=&q=cutecats&start=0"
 var d = document;
 scraper(src, {
     // parse_javascript: false,
