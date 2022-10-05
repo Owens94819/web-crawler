@@ -194,6 +194,9 @@ function scraper(url, options) {
                 },
                 progress: function () {
                     globals.callAll(arguments.callee.events, globals.toPercentage(globals.progress.loaded, globals.progress.total), globals.progress.loaded, globals.progress.total)
+                },
+                redirection : function(){
+                    globals.callAll(arguments.callee.events, arguments[0], arguments[1])
                 }
         },
         source_elements_queries: ['a', 'form', 'img', 'source', 'video', 'link', 'iframe'],
@@ -207,9 +210,15 @@ function scraper(url, options) {
             HTMLIFrameElement: ['src']
         },
         New_Element_Functions: {
-            HTMLAnchorElement: function (elm) {
-                elm = parseURL(elm.href)
+            HTMLAnchorElement: function () {
+                var elm = parseURL(arguments[0].href)
+                elm.preventDefault=false
                 if (elm.protocol.search(/^https?\:/) >= 0) {
+                    globals.class.redirection(elm,arguments[0])
+                    if (elm.preventDefault) {
+                        globals.state='opened'
+                        return
+                    }
                     globals.request = _fetch(elm.href, {
                         return_request: true,
                         disable_cors: globals.pdt
@@ -375,7 +384,16 @@ function scraper(url, options) {
     globals.class.return.current_location = function () {
         return globals.location
     };
-
+    globals.class.return.onredirection = function () {
+        if (arguments[0] instanceof Function) {
+            if (globals.class.redirection.events) {
+                globals.class.redirection.events.push(arguments[0])
+            } else {
+                globals.class.redirection.events = [arguments[0]]
+            }
+        }
+        return globals.class.return
+    }
     globals.parse_source_element = function () {
         if (arguments[0].__parsed) {
             return
