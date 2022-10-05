@@ -121,7 +121,7 @@ function scraper(url, options) {
 
         if (loc.origin !== "null") {
             loc.__path__ = loc.href.replace(loc.origin, '')
-            loc.parentpathname = loc.__path__.replace(/#[^]+/, '').trim() || '/'
+            loc.parentpathname = loc.__path__.replace(/#[^]+|\?[^]+/, '').trim() || '/'
             loc.protocol = [loc.origin.match(/^https?\:/)].toString()
             loc.host = loc.origin.replace(/^https?\:[\\\/][\\\/]/, '')
             loc.hostname = loc.host.replace(/\:[^]*/, '')
@@ -134,7 +134,7 @@ function scraper(url, options) {
                 if (pathparse[i] === "..") {
                     loc.parentpathname.pop()
                     continue;
-                } else if (pathparse[i] === "." || pathparse[i] === "") {
+                } else if (pathparse[i] === "." || (pathparse[i] === ""&&i+1<pathparse.length)) {
                     continue;
                 }
                 loc.parentpathname.push(pathparse[i])
@@ -219,6 +219,8 @@ function scraper(url, options) {
             },
             HTMLFormElement: function (elm) {
                 _elm = parseURL(elm.action)
+                _elm.url=_elm.origin+_elm.pathname
+                
                 if (_elm.protocol.search(/^https?\:/) >= 0) {
                     globals.state = "opened"
                     var bd = '';
@@ -231,19 +233,24 @@ function scraper(url, options) {
                             bd += "&" + encodeURIComponent(elm[i].name) + '=' + encodeURIComponent(elm[i].value)
                         }
                     }
-                    globals.request =  _fetch(_elm.href, {
-                        method: 'post',
+                    _elm.url=_elm.url+"?"+bd;
+                    if (elm.method==="get") {
+                        // bd=null
+                    }
+                    // elm.enctype||
+                    globals.request =  _fetch(_elm.url, {
+                        method: elm.method,
                         return_request: true,
                         disable_cors: globals.pdt,
                         body: bd,
                         headers:{
-                            "Content-Type": "application/x-www-form-urlencoded",
+                            "Content-Type": elm.enctype||elm.encoding||"application/x-www-form-urlencoded",
                             returned_content_type: "text/html; charset=UTF-8"
                         },
                         options: {
-                            method: 'post',
+                            method: elm.method,
                             headers: {
-                                "Content-Type": "application/x-www-form-urlencoded"
+                                "Content-Type":elm.enctype|| elm.encoding||"application/x-www-form-urlencoded"
                             }
                         }
                     }).request
