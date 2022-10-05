@@ -21,7 +21,7 @@ function scraper(url, options) {
         if (obj.disable_cors) {
             url = _fetch.url(url, obj.query);
         }
-        request.open("GET", url, true)
+        request.open(obj.method, url, true)
 
 
         if (obj.options instanceof Object) {
@@ -38,7 +38,18 @@ function scraper(url, options) {
             }
         }
 
-        request.send()
+        if (obj.headers instanceof Object) {
+            for (var key in obj.headers) {
+                request.setRequestHeader(key, obj.headers[key] + "")
+            }
+        }
+
+        if (obj.body) {
+            request.send(obj.body)
+        } else {
+            request.send()
+        }
+
         request.addEventListener("readystatechange", function () {
             if (request.readyState === request.HEADERS_RECEIVED) {
                 if (obj.disable_cors) {
@@ -63,8 +74,12 @@ function scraper(url, options) {
     }
     _fetch.obj = {
         type: "document",
+        method: 'get',
+        // body:'',
         // options: {},
-        // headers:{},
+        headers:{
+            returned_content_type: "text/html; charset=UTF-8"
+        },
         disable_cors: false
     }
     _fetch.url = function (url, qr) {
@@ -98,7 +113,7 @@ function scraper(url, options) {
 
     /** @ACTION url location handler */
     function parseURL(url) {
-        url=url||"";
+        url = url || "";
         var loc = {}
         url = url.trim().replace(/\n/img, '').toLowerCase().replace(/\\/img, '/')
         loc.href = url.trim().replace(/\n/img, '').toLowerCase()
@@ -203,8 +218,41 @@ function scraper(url, options) {
                 }
             },
             HTMLFormElement: function (elm) {
-                globals.state = "opened"
-                console.log(elm);
+                _elm = parseURL(elm.action)
+                if (_elm.protocol.search(/^https?\:/) >= 0) {
+                    globals.state = "opened"
+                    var bd = '';
+                    if (elm.length !== 0) {
+                        bd = encodeURIComponent(elm[0].name) + '=' + encodeURIComponent(elm[0].value)
+                    }
+
+                    for (var i = 1; i < elm.length; i++) {
+                        if (elm[i].name) {
+                            bd += "&" + encodeURIComponent(elm[i].name) + '=' + encodeURIComponent(elm[i].value)
+                        }
+                    }
+                    globals.request =  _fetch(_elm.href, {
+                        method: 'post',
+                        return_request: true,
+                        disable_cors: globals.pdt,
+                        body: bd,
+                        headers:{
+                            "Content-Type": "application/x-www-form-urlencoded",
+                            returned_content_type: "text/html; charset=UTF-8"
+                        },
+                        options: {
+                            method: 'post',
+                            headers: {
+                                "Content-Type": "application/x-www-form-urlencoded"
+                            }
+                        }
+                    }).request
+                    
+                    bd = undefined
+                    _elm = undefined
+                    globals.replace_window()
+                }
+                // console.log(elm);
             }
         },
         DOM: function (e) {
@@ -312,15 +360,15 @@ function scraper(url, options) {
             return_request: true,
             disable_cors: globals.pdt
         }).request
-        globals.replace_window(); 
+        globals.replace_window();
         return globals.class.return
     }
 
-    globals.class.return.parseURL=parseURL;
-    globals.class.return.current_location = function(){
+    globals.class.return.parseURL = parseURL;
+    globals.class.return.current_location = function () {
         return globals.location
     };
-    
+
     globals.parse_source_element = function () {
         if (arguments[0].__parsed) {
             return
@@ -394,10 +442,10 @@ function scraper(url, options) {
                     if (this.__parsed) {
                         this.dispatchEvent(execScript.event('click'))
                     } else {
-                    	if (globals.state === "opened") {
-                    globals.state = "closed"
-                    globals.New_Element_Functions.HTMLAnchorElement(this)
-                }
+                        if (globals.state === "opened") {
+                            globals.state = "closed"
+                            globals.New_Element_Functions.HTMLAnchorElement(this)
+                        }
                     }
                 }
 
@@ -424,9 +472,9 @@ function scraper(url, options) {
                 if (!globals.frame_ready) {
                     globals.frame_ready = true
                     if (globals.frame.src.trim()) {
-                        globals.frame.src=globals.frame_default_src;
+                        globals.frame.src = globals.frame_default_src;
                         globals.frame.addEventListener('load', load)
-                    }else{
+                    } else {
                         load()
                     }
                 } else {
@@ -563,13 +611,13 @@ function scraper(url, options) {
     }
 
     globals.replace_window = function () {
-        globals.progress.loaded=0;
+        globals.progress.loaded = 0;
         globals.request.addEventListener("readystatechange", function () {
             // if (typeof globals.progress.total !== 'number') {
             //     globals.progress.total = arguments[0].target.DONE + 1
             // }
-            if (globals.progress.loaded===0) {
-               globals.class.progress()
+            if (globals.progress.loaded === 0) {
+                globals.class.progress()
             }
             globals.progress.loaded = arguments[0].target.readyState
             globals.class.progress()
@@ -636,7 +684,7 @@ function scraper(url, options) {
             return_request: true,
             disable_cors: globals.pdt
         }).request
-        globals.replace_window(); 
+        globals.replace_window();
     }
 
     return globals.class.return

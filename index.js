@@ -27,19 +27,24 @@ page.replace(url)
 }
 back.urls=[null];
 
-var page = scraper(null, {
+var page = scraper("http://localhost:1234/test/test.html", {
     // parse_javascript: false,
     iframe: iframe,
 }).beforethen(function (document) {
+    if (back.urls.length>1) {
+        body.querySelector('.bk>button').style.display=''
+    }
+    back.urls.push(page.current_location().href)
+    body.querySelector('.sh>input').value=back.urls[back.urls.length-1]
     // try {
     //     document.querySelector('body>div').remove()
     // document.querySelector('body>div:last-child').remove()
     // document.querySelector('body>div:last-child').remove()
     // } catch (error) {
-        
+        // 
     // }
-    var style = window.document.querySelector('[as="head"]')
-    document.head.appendChild(style.content.cloneNode(true))
+    // var style = window.document.querySelector('[as="head"]')
+    // document.head.appendChild(style.content.cloneNode(true))
 }).progress(function (e) {
     document.querySelector('.nav .progress').style.width=e+'%'
     if (e===0) {
@@ -51,10 +56,6 @@ var page = scraper(null, {
         },1000)
     }
 }).then(function (window, document) {
-    if (back.urls.length>1) {
-        body.querySelector('.bk>button').style.display=''
-    }
-    back.urls.push(page.current_location().href)
     document = window.document
     var ctx = document.querySelector("body>div>table") || document.querySelector("body>div.site>div.site-content>section.content-archive")
     if (ctx) {
