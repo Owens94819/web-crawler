@@ -35,5 +35,5 @@ function load(url) {
     }, '*')
 }
 
-back.urls = ["http://localhost:1234/test/home.html"];
-// iframe.src=back.urls[0]
+back.urls = ["http://localhost:12345/http%3A%2F%2Flocalhost%3A1234/test/home.html"];
+iframe.src=back.urls[0]
