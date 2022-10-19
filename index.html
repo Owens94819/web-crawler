@@ -7,62 +7,62 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
     <template id="style">
-            body {
-                 background-color: #e2e4e9; 
-                color: #333333;
-                font-family: arial, sans-serif;
-                /* padding: 0;
-                margin: 0; */
-                max-width: none;
-                min-width: 0;
-                overflow: auto;
-                display: flex;
-                width: 100%;
-                width: -webkit-fill-available;
-                flex-wrap: wrap;
-                flex-direction: column;
-            }
+        body {
+        background-color: #e2e4e9;
+        color: #333333;
+        font-family: arial, sans-serif;
+        /* padding: 0;
+        margin: 0; */
+        max-width: none;
+        min-width: 0;
+        overflow: auto;
+        display: flex;
+        width: 100%;
+        width: -webkit-fill-available;
+        flex-wrap: wrap;
+        flex-direction: column;
+        }
 
-            .FbhRzb {
-                border: thin solid #dadce0;
-            }
+        .FbhRzb {
+        border: thin solid #dadce0;
+        }
 
-            body>table.GpQGbf {
-                display: flex;
-                flex-direction: row;
-                flex-wrap: wrap;
-                width: 100%;
-                overflow: auto;
-            }
+        body>table.GpQGbf {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        width: 100%;
+        overflow: auto;
+        }
 
-            body>table.GpQGbf>tbody {
-                display: flex;
-                max-width: none;
-                width: auto;
-                overflow: auto;
-                flex-direction: column;
-                flex-wrap: wrap;
-            }
+        body>table.GpQGbf>tbody {
+        display: flex;
+        max-width: none;
+        width: auto;
+        overflow: auto;
+        flex-direction: column;
+        flex-wrap: wrap;
+        }
 
-            body>table.GpQGbf>tbody>tr {
-                width: 100%;
-                /* height: 77%; */
-                display: flex;
-                overflow: auto;
-                flex-wrap: wrap;
-                flex-direction: row;
-            }
+        body>table.GpQGbf>tbody>tr {
+        width: 100%;
+        /* height: 77%; */
+        display: flex;
+        overflow: auto;
+        flex-wrap: wrap;
+        flex-direction: row;
+        }
 
-            body>table.GpQGbf>tbody>tr>td.e3goi {
-                display: flex;
-                flex-direction: row;
-                width: 25%;
-                overflow: hidden;
-            }
+        body>table.GpQGbf>tbody>tr>td.e3goi {
+        display: flex;
+        flex-direction: row;
+        width: 25%;
+        overflow: hidden;
+        }
 
-            .meta-category {
-                display: none;
-            }
+        .meta-category {
+        display: none;
+        }
     </template>
     <link rel="stylesheet" href="style.css">
     <script>
@@ -78,8 +78,8 @@
                         link: location.origin + '/injection/style.css'
                     }, '*')
                     break;
-                    case '--reload--':
-                    console.log(data);
+                case '--reload--':
+                    iframe.src=data.data
                     break;
             }
         })
@@ -108,7 +108,7 @@
             <div class="progress"></div>
         </div>
     </div>
-    <iframe id="iframe" src='http://localhost:12345/http%3A%2F%2Flocalhost%3A1234/test/test.html'></iframe>
+    <iframe id="iframe" src='http://localhost:12345/http%3A%2F%2Flocalhost%3A1234/test/home.html'></iframe>
     <script src="index.js"></script>
 </body>
 
